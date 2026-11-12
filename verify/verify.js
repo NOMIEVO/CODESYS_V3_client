@@ -677,6 +677,7 @@ function syncWritePanel() {
 /* ══════════ 变量选择弹窗 ══════════ */
 let pickOpenArrs = new Set();      /* 已展开的数组 base key */
 let pickOpenStruct = new Set();    /* 已展开的结构体元素 key（如 GVL_AXIS.aAxisCtl[3]） */
+let pickFocusElem = null;          /* 最近通过"元素切换"跳到过的元素 key（可能不在前 64 行内） */
 const pickMemberCache = {};        /* key → 成员树（/api/members 结果，含 pending） */
 const PICK_ARR_ROWS = 64;          /* 每个数组展开时最多渲染多少元素行 */
 
@@ -761,8 +762,79 @@ function pickStructRow(key, name, sub, frag, depth) {
   renderMemberArea(key, depth + 1, frag, $('pickSearch').value.trim().toLowerCase());
 }
 
+/* 元素切换条：从一个结构体元素（xx[3]）直接跳到同数组的其它元素（xx[0]/[1]/…），
+   不必收起再展开。
+   为什么需要：一个结构体数组往往有十几个元素，每个元素的成员都一样（如 tState/...），
+   逐个元素点「展开成员」再找同一个成员，操作代价很高；切换条可以停在成员树上平移。 */
+function elemNavInfo(key) {
+  const m = /^(.*)\[(\d+)\]$/.exec(String(key || ''));
+  if (!m) return null;
+  const meta = symMap[m[1]];                    /* 父数组符号（带 elem: lo/hi/base） */
+  if (!meta || !meta.elem) return null;
+  return { base: m[1], idx: Number(m[2]), lo: meta.elem.lo, hi: meta.elem.hi, name: meta.name };
+}
+
+function renderElemNav(key, depth, frag) {
+  const n = elemNavInfo(key);
+  if (!n) return;
+  const box = document.createElement('div');
+  box.className = 'pick-elemnav';
+  box.style.marginLeft = (18 + depth * 14) + 'px';
+  box.onclick = (e) => e.stopPropagation();
+
+  const prev = document.createElement('button');
+  prev.className = 'btn sm ghost';
+  prev.textContent = '◀';
+  prev.title = '上一个元素';
+  prev.disabled = n.idx <= n.lo;
+  prev.onclick = () => switchElem(key, n.idx - 1);
+  box.appendChild(prev);
+
+  const label = document.createElement('span');
+  label.className = 'pick-elemnav-label';
+  label.innerHTML = `元素 <b>${n.idx}</b> / ${n.name} · ${n.lo}..${n.hi}`;
+  box.appendChild(label);
+
+  const next = document.createElement('button');
+  next.className = 'btn sm ghost';
+  next.textContent = '▶';
+  next.title = '下一个元素';
+  next.disabled = n.idx >= n.hi;
+  next.onclick = () => switchElem(key, n.idx + 1);
+  box.appendChild(next);
+
+  const inp = document.createElement('input');
+  inp.type = 'number';
+  inp.min = n.lo; inp.max = n.hi;
+  inp.placeholder = '下标';
+  inp.onclick = (e) => e.stopPropagation();
+  inp.onkeydown = (e) => {
+    e.stopPropagation();
+    if (e.key !== 'Enter') return;
+    const i = Number(inp.value);
+    if (!Number.isInteger(i) || i < n.lo || i > n.hi) { inp.classList.add('bad'); return; }
+    switchElem(key, i);
+  };
+  box.appendChild(inp);
+  frag.appendChild(box);
+}
+
+/* 把"已展开"状态从当前元素搬到目标元素，并复用同一份成员缓存（同类型数组成员结构一致） */
+function switchElem(fromKey, toIdx) {
+  const n = elemNavInfo(fromKey);
+  if (!n) return;
+  if (!Number.isInteger(toIdx) || toIdx < n.lo || toIdx > n.hi) return;
+  const toKey = `${n.base}[${toIdx}]`;
+  pickOpenStruct.delete(fromKey);
+  pickOpenStruct.add(toKey);
+  pickFocusElem = toKey;                 /* 目标可能超出前 64 行，渲染时单独补一行 */
+  if (!pickMemberCache[toKey]) loadMembers(toKey);
+  renderPickList();
+}
+
 /* 成员区：loading / 错误 / 空 / 递归树 */
 function renderMemberArea(key, depth, frag, q) {
+  renderElemNav(key, depth, frag);
   const c = pickMemberCache[key];
   if (!c) {
     const ld = document.createElement('div');
@@ -915,6 +987,20 @@ function pickArrayRow(s, q, frag) {
       pickRow(key, `${s.name}[${idx}]`, `${s.gvl || ''} · ${base} · 元素 ${idx}`, frag, 1, base);
     } else {
       pickStructRow(key, `${s.name}[${idx}]`, `${s.gvl || ''} · ${base} · 元素 ${idx}`, frag, 1);
+    }
+  }
+  /* 通过"元素切换"跳到超出前 PICK_ARR_ROWS 行的元素时，单独补一行，
+     否则成员区会渲染在一个列表里根本不存在的行下面 */
+  if (pickFocusElem && pickFocusElem.startsWith(baseKey + '[') && pickFocusElem.endsWith(']')) {
+    const fi = Number(pickFocusElem.slice(baseKey.length + 1, -1));
+    if (Number.isInteger(fi) && fi >= lo + lim && fi <= hi) {
+      const tag = document.createElement('div');
+      tag.className = 'pick-loading';
+      tag.textContent = '↓ 已跳到元素 ' + fi + '（不在前 ' + lim + ' 行内）';
+      frag.appendChild(tag);
+      const k = `${baseKey}[${fi}]`;
+      if (writable) pickRow(k, `${s.name}[${fi}]`, `${s.gvl || ''} · ${base} · 元素 ${fi}`, frag, 1, base);
+      else pickStructRow(k, `${s.name}[${fi}]`, `${s.gvl || ''} · ${base} · 元素 ${fi}`, frag, 1);
     }
   }
   if (count > lim) {

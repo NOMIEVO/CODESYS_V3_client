@@ -77,6 +77,7 @@ const READONLY = process.env.MYX_READONLY === '1';
    文件由 tools/gen_tags.py 从 XML 符号配置生成；换点请编辑
    server/profiles/<APP>.profile.json 后重跑生成器，不要改这里。 */
 
+let APP_DISPLAY = '';   /* 界面显示的程序名（原名，可含中文） */
 let APP_ID = (() => {
   const env = process.env.MYX_APP;
   if (env) return env;
@@ -140,6 +141,9 @@ function loadAppData(app) {
   /* 主点表（周期读 + 写入回读用） */
   GEN_TAGS = JSON.parse(fs.readFileSync(path.join(__dirname, 'gen', app + '.tags.json'), 'utf8'));
   TAGS = GEN_TAGS.tags;
+  /* 显示名：XML ProjectInfo 原名（可能含中文）。程序 ID 必须是 ASCII 标识符
+     （同时作文件名与 /api/select?app= 参数），原名只用于界面展示。 */
+  APP_DISPLAY = GEN_TAGS.appDisplay || GEN_TAGS.app || app;
   /* 类型库（结构体钻取用，XML 为唯一准则） */
   try { TYPES = JSON.parse(fs.readFileSync(path.join(__dirname, 'gen', app + '.types.json'), 'utf8')).types || {}; }
   catch (e) { console.error('[types] 类型库加载失败 → 结构体钻取不可用: ' + e.message); TYPES = {}; }
@@ -884,7 +888,8 @@ class Runner {
     this.drillLayout = loadDrillLayout();
     this.emitState();
     /* 通知所有页面：程序已切换（点表/白名单/符号数随行） */
-    this.broadcast({ t: 'app', app: APP_ID, points: TAGS.length, symbolCount: SYMBOLS.length,
+    this.broadcast({ t: 'app', app: APP_ID, appDisplay: APP_DISPLAY,
+      points: TAGS.length, symbolCount: SYMBOLS.length,
       tags: TAGS, whitelist: WHITELIST });
     this.log('sys', `── 程序已切换：${APP_ID}（${TAGS.length} 点 · ${SYMBOLS.length} 符号），重新握手 ──`);
     /* 给 PLC 留出释放上一个连接的时间，统一走唯一排期 */
@@ -1335,7 +1340,7 @@ function handleApiPost(p, qp, body, res) {
       return;
     }
     runner.switchApp(app);
-    json(200, { ok: true, app: APP_ID, points: TAGS.length, symbolCount: SYMBOLS.length });
+    json(200, { ok: true, app: APP_ID, appDisplay: APP_DISPLAY, points: TAGS.length, symbolCount: SYMBOLS.length });
     return;
   }
   /* /api/delete：删除已导入程序（生成产物 + 原始 XML 一并清理） */
@@ -1397,7 +1402,15 @@ function handleApiPost(p, qp, body, res) {
   }
   /* /api/import */
   let name = path.basename(String(qp.get('name') || 'imported.xml'));
-  name = name.replace(/[^\w.\-]/g, '_');
+  /* 落盘文件名转 ASCII：中文名在 Windows 下 spawn python + cp936 控制台会被截断/乱码，
+     且不同中文名转写后可能撞名，故追加原名哈希。程序名（显示用）取自 XML 内 ProjectInfo，
+     与文件名无关，所以这里改名不影响识别。 */
+  const origName = name;
+  name = name.replace(/[^A-Za-z0-9._-]+/g, '_').replace(/_+/g, '_');
+  if (name !== origName) {
+    const h = require('crypto').createHash('md5').update(origName).digest('hex').slice(0, 6);
+    name = name.replace(/(\.xml)$/i, `_${h}$1`);
+  }
   if (!/\.xml$/i.test(name)) name += '.xml';
   if (!body || body.length < 100) { json(400, { ok: false, error: 'XML 内容为空或过短' }); return; }
   const head = body.slice(0, 4000).toString('utf8');
@@ -1423,7 +1436,7 @@ function handleApiPost(p, qp, body, res) {
     if (!m) { json(500, { ok: false, error: '未解析到 APP= 程序名（生成器输出异常）', output: tail }); return; }
     const app = m[1];
     runner.switchApp(app);
-    json(200, { ok: true, app, points: TAGS.length, symbolCount: SYMBOLS.length, output: tail });
+    json(200, { ok: true, app, appDisplay: APP_DISPLAY, points: TAGS.length, symbolCount: SYMBOLS.length, output: tail });
   });
 }
 
@@ -1458,19 +1471,21 @@ const server = http.createServer((req, res) => {
         try {
           const d = JSON.parse(fs.readFileSync(path.join(genDir, f), 'utf8'));
           list.push({ app: d.app || f.replace(/\.tags\.json$/, ''),
+            display: d.appDisplay || d.app || f.replace(/\.tags\.json$/, ''),
             points: d.tags ? d.tags.length : 0, generatedAt: d.generatedAt || '' });
         } catch (_) {}
       }
     } catch (_) {}
     list.sort((a, b) => (a.generatedAt < b.generatedAt ? 1 : -1));
     res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-    res.end(JSON.stringify({ current: APP_ID, apps: list }));
+    res.end(JSON.stringify({ current: APP_ID, currentDisplay: APP_DISPLAY, apps: list }));
     return;
   }
 
   if (p === '/api/meta') {
     res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
     res.end(JSON.stringify({ host: HOST, port: PLC_PORT, tags: TAGS, app: APP_ID,
+      appDisplay: APP_DISPLAY,
       whitelist: WHITELIST, readonly: READONLY, period: runner.period,
       symbolCount: SYMBOLS.length, cfgSource: PLC_CFG.source }));
     return;

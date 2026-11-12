@@ -169,34 +169,120 @@ def parse_xml(xml_path):
     return app, types, symbols
 
 
-def fallback_app_name(xml_path):
-    """XML 无 ProjectInfo name（别人程序没导全/老版本导出）时按文件名回退：
-    Foo.Device.Application.xml → Foo；不可用于标识符的字符换下划线。"""
-    base = os.path.splitext(os.path.basename(xml_path))[0]
-    base = re.sub(r'\.(Device\.)?Application$', '', base, flags=re.I)
-    return re.sub(r'[^\w]', '_', base) or 'IMPORTED_APP'
+def safe_app_name(name):
+    r"""程序名 → 可用作文件名 / URL 参数 / 校验正则的 ASCII 标识符。
+
+    为什么要转：程序名同时是
+      · server/gen/<APP>.tags.json 等文件名
+      · /api/select?app=<APP> 的参数（服务端按 ^\w+$ 校验，中文必然被拒）
+    中文名（如「HMI标签测试」）直接当标识符会生成文件却选不回来。
+    转法：保留 ASCII 字母数字与 _-，其余压成单个下划线；若原名含非 ASCII，
+    追加 6 位内容哈希，避免「HMI标签测试」「HMI测试」都退化成同一个 ID。
+    原始名称保存在 appDisplay 里供界面显示。
+    """
+    raw = (name or '').strip()
+    if not raw:
+        return 'IMPORTED_APP'
+    ascii_part = re.sub(r'[^A-Za-z0-9_-]+', '_', raw).strip('_')
+    if not ascii_part:
+        ascii_part = 'APP'
+    if ascii_part[0].isdigit():
+        ascii_part = 'APP_' + ascii_part
+    ascii_part = ascii_part[:40]
+    if any(ord(c) > 127 for c in raw):
+        import hashlib
+        ascii_part += '_' + hashlib.md5(raw.encode('utf-8')).hexdigest()[:6]
+    return ascii_part
 
 
-def auto_select_points(symbols):
+def array_elem_iec(types, sym):
+    """数组符号 → 元素 IEC 类型（不支持的返回 None）。
+    XML 的 iecname 形如 'ARRAY [0..1999] OF REAL'，取 OF 之后的基类型；
+    旧编译器（SP17 及更早）也是这个写法，两种格式都能取到。"""
+    m = re.search(r'\bOF\s+([A-Za-z_]\w*)\s*$', sym.get('iec') or '', re.I)
+    if m:
+        base = m.group(1).upper()
+        return base if base in IEC_MAP else None
+    t = types.get(sym.get('typeName') or '', {})
+    base_t = types.get(t.get('basetype') or '', {})
+    iec = (base_t.get('iec') or '').upper()
+    return iec if iec in IEC_MAP else None
+
+
+def resolve_point(symbols, types, key):
+    """把一个点位 key 解析成 (iec, kind)。支持两种写法：
+      · 标量      GVL.Main.Speed
+      · 数组元素  GVL.Main.aVal[3]      （PLC 侧按元素名寻址，读取机制与标量一致）
+    返回 None 表示该 key 在 XML 中不存在或类型不支持。"""
+    sym = symbols.get(key)
+    if sym:
+        return (sym['iec'], sym['kind']) if sym['kind'] == 'TypeSimple' else None
+    m = re.match(r'^(.*)\[(\d+)\]$', key)
+    if m:
+        base = symbols.get(m.group(1))
+        if not base or base['kind'] != 'TypeArray':
+            return None
+        t = types.get(base['typeName']) or {}
+        lo, hi = t.get('lo'), t.get('hi')
+        idx = int(m.group(2))
+        if lo is not None and not (lo <= idx <= hi):
+            return None
+        iec = array_elem_iec(types, base)
+        return (iec, 'TypeSimple') if iec else None
+    return None
+
+
+def auto_select_points(symbols, types=None):
     """模板全不匹配（外来程序）：自动选点保证控制台开箱即用。
-    规则：全部 TypeSimple 标量（排除数组元素），按路径排序取前 32 个；
-    label=key、group='auto'，写入档案后可手工微调。"""
+
+    规则（两级，按路径排序）：
+      ① 先收全部 TypeSimple 标量，最多 32 个；
+      ② 标量不足 8 个时，从数组里补**前几个元素**（GVL.CommValue[0]、[1]…），
+         补到 8 个为止。数组元素在 PLC 侧按元素名寻址，读取机制与标量相同，
+         可以正常进点表；数组本体仍在全量页整体展示。
+
+    ②是为了兼容「整个程序只有一个大数组」的工程（旧编译器导出的 HMI 点表常见）：
+    这种 XML 里一个标量都没有，只按 ① 选点会得到 0 个点，整条导入链直接失败。
+    """
+    types = types or {}
     out = []
-    for key in sorted(symbols):
-        s = symbols[key]
-        if s['kind'] != 'TypeSimple' or s['isArrayElem']:
-            continue
-        iec = s['iec']
-        if iec not in IEC_MAP:
-            continue
+
+    def push(key, iec):
         out.append((key, {'label': key, 'unit': '', 'group': 'auto',
                           'digits': 2, 'type': IEC_MAP[iec], 'iec': iec}))
+
+    for key in sorted(symbols):
+        sym = symbols[key]
+        if sym['kind'] != 'TypeSimple' or sym['isArrayElem']:
+            continue
+        if sym['iec'] not in IEC_MAP:
+            continue
+        push(key, sym['iec'])
         if len(out) >= 32:
-            break
+            return out
+
+    if len(out) < 8:
+        per_array = 8 - len(out)
+        for key in sorted(symbols):
+            sym = symbols[key]
+            if sym['kind'] != 'TypeArray':
+                continue
+            iec = array_elem_iec(types, sym)
+            if not iec:
+                continue
+            t = types.get(sym['typeName']) or {}
+            lo, hi = t.get('lo'), t.get('hi')
+            if lo is None:
+                continue
+            for i in range(lo, min(hi, lo + per_array - 1) + 1):
+                push(f'{key}[{i}]', iec)
+            per_array = 8 - len(out)
+            if per_array <= 0:
+                break
     return out
 
 
-def select_points(app, symbols, profile_path):
+def select_points(app, symbols, profile_path, types=None):
     """返回 [(key, meta)]，类型一律 XML。档案存在则档案优先。
     内置模板 0 命中（外来程序）→ 自动选点，保证控制台能起。"""
     if os.path.exists(profile_path):
@@ -205,13 +291,14 @@ def select_points(app, symbols, profile_path):
         out = []
         for p in pts:
             key = p['key']
-            if key not in symbols:
-                die(f'档案里的点在 XML 中不存在: {key}（XML 为唯一准则，请核对 GVL 归属/拼写）')
-            if symbols[key]['kind'] != 'TypeSimple':
-                die(f'{key} 不是标量（{symbols[key]["kind"]}），暂不支持列入点表')
-            iec = symbols[key]['iec']
-            if iec not in IEC_MAP:
-                die(f'{key} 的 XML 类型 {symbols[key]["typeName"]} ({iec}) 不在支持清单')
+            r = resolve_point(symbols, types, key)
+            if r is None:
+                hint = ''
+                if key in symbols:
+                    hint = f'（类型 {symbols[key]["typeName"]} / {symbols[key]["kind"]}）'
+                die(f'档案里的点无法解析: {key}{hint}'
+                    '——XML 为唯一准则，请核对路径/拼写/下标范围')
+            iec = r[0]
             out.append((key, {
                 'label': p.get('label', key), 'unit': p.get('unit', ''),
                 'group': p.get('group', 'param'), 'digits': int(p.get('digits', 0)),
@@ -221,18 +308,15 @@ def select_points(app, symbols, profile_path):
     # 内置模板选点：只有 XML 中真实存在才收录
     out = []
     for key, (label, unit, group, digits) in DEFAULT_META.items():
-        s = symbols.get(key)
-        if not s or s['kind'] != 'TypeSimple':
+        r = resolve_point(symbols, types, key)
+        if r is None or r[1] != 'TypeSimple':
             continue
-        iec = s['iec']
-        if iec not in IEC_MAP:
-            print(f'  [!] 跳过 {key}：类型 {s["typeName"]} 暂不支持')
-            continue
+        iec = r[0]
         out.append((key, {'label': label, 'unit': unit, 'group': group,
                           'digits': digits, 'type': IEC_MAP[iec], 'iec': iec}))
     if not out:
-        print('  [!] 与内置模板（SJJC/TBJ）完全不匹配——外来程序，自动选点（可后续在 profile 微调）')
-        out = auto_select_points(symbols)
+        print('  [!] 与内置模板（DEMO_MACHINE）完全不匹配——外来程序，自动选点（可后续在 profile 微调）')
+        out = auto_select_points(symbols, types)
     return out, True
 
 
@@ -250,13 +334,18 @@ def gen_for_xml(xml_path, check_only=False):
     if not app:
         app = fallback_app_name(xml_path)
         print(f'  [!] XML Header 无 ProjectInfo name，按文件名回退命名: {app}')
-    print(f'\n■ {app}  ← {os.path.relpath(xml_path, ROOT)}')
+    app_display = app
+    app = safe_app_name(app)
+    print(f'\n■ {app_display}  ← {os.path.relpath(xml_path, ROOT)}')
+    if app != app_display:
+        print(f'  App ID: {app} (non-ASCII name transliterated; UI keeps the original)')
     print(f'  符号总数（含容器/数组元素展开）: {len(symbols)}，类型数: {len(types)}')
 
     profile_path = os.path.join(ROOT, 'server', 'profiles', f'{app}.profile.json')
-    pts, need_profile = select_points(app, symbols, profile_path)
+    pts, need_profile = select_points(app, symbols, profile_path, types)
     if not pts:
-        die('一个点都没选中——XML 与内置模板完全不匹配，请手工建 profile 档案')
+        die('一个点都没选中——XML 里既没有可用标量，也没有可写数组元素；'
+            '请手工建 profile 档案指定点位')
     print(f'  点表选择: {len(pts)} 点（来源: {"内置模板" if need_profile else os.path.relpath(profile_path, ROOT)}）')
 
     # ── 校验：固件支持的类型子集 ──
@@ -301,7 +390,8 @@ def gen_for_xml(xml_path, check_only=False):
              'type': m['type'], 'digits': m['digits'], 'group': m['group'],
              'iec': m['iec']} for k, m in pts]
     tags_path = os.path.join(gen_dir, f'{app}.tags.json')
-    json.dump({'schema': 'gen-tags/1', 'app': app, 'generatedFrom': xml_path,
+    json.dump({'schema': 'gen-tags/1', 'app': app, 'appDisplay': app_display,
+               'generatedFrom': xml_path,
                'generatedAt': datetime.now().isoformat(timespec='seconds'),
                'note': '由 tools/gen_tags.py 从 XML 符号配置自动生成，禁止手改；'
                        '类型以 XML 为唯一准则。改选点请编辑 server/profiles/%s.profile.json' % app,
@@ -311,7 +401,8 @@ def gen_for_xml(xml_path, check_only=False):
 
     # ── 2) 全量符号清单 ──
     sym_path = os.path.join(gen_dir, f'{app}.symbols.json')
-    json.dump({'schema': 'gen-symbols/1', 'app': app, 'generatedFrom': xml_path,
+    json.dump({'schema': 'gen-symbols/1', 'app': app, 'appDisplay': app_display,
+               'generatedFrom': xml_path,
                'symbolCount': len(symbols),
                'symbols': [symbols[k] for k in sorted(symbols)]},
               open(sym_path, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
@@ -319,7 +410,8 @@ def gen_for_xml(xml_path, check_only=False):
 
     # ── 2.5) 类型定义库（结构体钻取：成员名/偏移/访问权限 + 数组维度） ──
     types_path = os.path.join(gen_dir, f'{app}.types.json')
-    json.dump({'schema': 'gen-types/1', 'app': app, 'generatedFrom': xml_path,
+    json.dump({'schema': 'gen-types/1', 'app': app, 'appDisplay': app_display,
+               'generatedFrom': xml_path,
                'note': 'TypeList 原样搬运：结构体成员（iecname/byteoffset/access）与数组维度'
                        '（minrange/maxrange/basetype）。成员路径合成与钻取读取的依据。',
                'types': types},
