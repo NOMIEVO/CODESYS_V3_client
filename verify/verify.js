@@ -121,6 +121,7 @@ async function boot() {
   renderWatch();
   bindImport();
   loadApps();
+  checkEnv();          /* 导入依赖 python：打开页面就把环境问题摆出来 */
   drawRtt();
   bindUI();
   connectWS();
@@ -318,6 +319,12 @@ async function selectApp(app) {
 }
 
 async function doImport(file) {
+  /* 先问一句本机 python 能不能跑：不能跑就别让用户白等一轮生成，直接讲清原因 */
+  const env = await checkEnv();
+  if (env && env.ok === false && env.python && env.python.ok === false) {
+    impStatus('✗ 导入中止：本机没有可用的 Python ' + env.python.need + '\n' + env.python.help, 'err');
+    return;
+  }
   impStatus(`导入 ${file.name}（${(file.size / 1024).toFixed(1)} KB）→ 生成数据文件中…`);
   $('drop').classList.add('busy');
   try {
@@ -329,9 +336,36 @@ async function doImport(file) {
       loadApps();
     } else {
       impStatus('✗ 导入失败：' + d.error + (d.output ? '\n' + d.output : ''), 'err');
+      /* python 缺失属环境问题：顺手把顶部检查条也刷成最新结论 */
+      if (d.hint === 'python-missing') checkEnv();
     }
   } catch (e) { impStatus('✗ ' + e.message, 'err'); }
   $('drop').classList.remove('busy');
+}
+
+/* ── 环境自检：python 是否可用于导入（对应「gen_tags.py 退出码 9009」） ──
+   9009 是 Windows 的「命令未找到」，说明子进程根本没跑脚本：没装 python、
+   装时没勾 Add to PATH、或命中了 Microsoft Store 的占位别名。
+   这里在页面打开时主动暴露，而不是等用户拖完文件才报错。 */
+let envCache = null;
+async function checkEnv(force) {
+  if (envCache && !force) return envCache;
+  try {
+    const d = await (await fetch('/api/env')).json();
+    envCache = d;
+    const box = $('impEnv');
+    if (d.python && d.python.ok === false) {
+      box.innerHTML = '<b>导入不可用：本机没有可用的 Python ' + d.python.need + '+</b>\n'
+        + '探测结果：\n' + d.python.tried.map(t => '  · ' + t).join('\n') + '\n\n'
+        + d.python.help;
+      box.hidden = false;
+      $('drop').classList.add('busy');
+    } else {
+      box.hidden = true;
+      $('drop').classList.remove('busy');
+    }
+    return d;
+  } catch (e) { return null; }
 }
 
 function bindImport() {

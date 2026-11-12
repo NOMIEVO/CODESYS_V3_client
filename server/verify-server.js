@@ -1398,6 +1398,10 @@ function fmt(tag, v) {
   return Number(v).toFixed(tag.digits ?? 2) + (tag.unit ? ' ' + tag.unit : '');
 }
 
+/* python 探测已独立成模块（server/py-probe.js）：导入 XML 前先确认本机 python 能跑，
+   避免把 Windows 的 9009「命令未找到」原样丢给用户。 */
+const { probePython, PY_NEED, PY_HELP } = require('./py-probe');
+
 const runner = new Runner();
 
 /* ════════════════ HTTP 静态服务 ════════════════ */
@@ -1517,17 +1521,38 @@ function handleApiPost(p, qp, body, res) {
   const testDir = path.join(__dirname, '..', 'Test');
   try { fs.mkdirSync(testDir, { recursive: true }); } catch (_) {}
   const file = path.join(testDir, name);
+  const wasExisting = fs.existsSync(file);
   fs.writeFileSync(file, body);
-  runner.log('sys', `── 导入 XML：${name}（${body.length}B）→ 正在生成数据文件… ──`);
-  const py = spawn('python', ['tools/gen_tags.py', path.join('Test', name)],
-    { cwd: path.join(__dirname, '..') });
+
+  /* 先确认 python 真能跑：不能跑就别把 9009 这种天书丢给用户 */
+  const pyInfo = probePython();
+  if (!pyInfo.ok) {
+    if (!wasExisting) { try { fs.unlinkSync(file); } catch (_) {} }
+    runner.log('sys', `✗ 导入中止：本机没有可用的 Python ${PY_NEED}+（gen_tags.py 无法执行）`);
+    pyInfo.tried.forEach(t => runner.log('sys', `    · ${t}`));
+    json(500, { ok: false, error: pyInfo.error, output: '探测结果：\n' + pyInfo.tried.join('\n'),
+      hint: 'python-missing', feature: 'import' });
+    return;
+  }
+
+  runner.log('sys', `── 导入 XML：${name}（${body.length}B）→ 正在生成数据文件…（python ${pyInfo.version}） ──`);
+  const py = spawn(pyInfo.cmd, [...pyInfo.args, 'tools/gen_tags.py', path.join('Test', name)],
+    { cwd: path.join(__dirname, '..'), windowsHide: true });
   let out = '', errOut = '';
   py.stdout.on('data', (d) => { out += d; });
   py.stderr.on('data', (d) => { errOut += d; });
   py.on('error', (e) => json(500, { ok: false, error: '无法启动 python：' + e.message }));
   py.on('close', (code) => {
     const tail = (out + errOut).split(/\r?\n/).filter(Boolean).slice(-14).join('\n');
-    if (code !== 0) { json(500, { ok: false, error: 'gen_tags.py 退出码 ' + code, output: tail }); return; }
+    if (code !== 0) {
+      /* 探测通过但执行仍 9009：解释器被中途卸载/权限拦截，或 PATH 变了（服务没重启） */
+      const msg = (code === 9009)
+        ? 'Python 命令中断（退出码 9009 = 命令未找到）\n\n' + PY_HELP
+        : 'gen_tags.py 退出码 ' + code;
+      if (!wasExisting) { try { fs.unlinkSync(file); } catch (_) {} }
+      json(500, { ok: false, error: msg, output: tail });
+      return;
+    }
     const m = out.match(/^APP=(\S+)$/m);
     if (!m) { json(500, { ok: false, error: '未解析到 APP= 程序名（生成器输出异常）', output: tail }); return; }
     const app = m[1];
@@ -1554,6 +1579,22 @@ const server = http.createServer((req, res) => {
       chunks.push(c);
     });
     req.on('end', () => handleApiPost(p, qp, Buffer.concat(chunks), res));
+    return;
+  }
+
+  /* ── 运行环境自检（导入依赖 python；前端/脚本据此提前示警） ── */
+  if (p === '/api/env') {
+    const py = probePython();
+    const body = {
+      ok: py.ok,
+      node: process.version,
+      python: py.ok
+        ? { ok: true, cmd: py.cmd, version: py.version, exe: py.exe }
+        : { ok: false, need: PY_NEED, tried: py.tried, help: PY_HELP },
+      plc: { host: HOST, port: PLC_PORT },
+    };
+    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+    res.end(JSON.stringify(body));
     return;
   }
 
@@ -1770,6 +1811,15 @@ server.listen(WEB_PORT, () => {
   console.log('  界面  http://127.0.0.1:' + WEB_PORT);
   console.log('  PLC   ' + HOST + ':' + PLC_PORT + (READONLY ? '  [只读模式]' : ''));
   console.log('  点表  ' + TAGS.length + ' 点 · 白名单 ' + WHITELIST.length + ' 项');
+  /* 导入 XML 需要 python：启动就把结论打出来，别等用户导入失败才发现 */
+  const py = probePython();
+  if (py.ok) {
+    console.log('    导入  python ' + py.version + '  (' + py.cmd + ' → ' + py.exe + ')');
+  } else {
+    console.log('    导入  ✗ 找不到 Python ' + PY_NEED + '+，XML 导入会失败：');
+    py.tried.forEach(t => console.log('          · ' + t));
+    console.log('          装 Python 3.8+（勾 Add to PATH）或设 MYX_PYTHON=<python.exe 全路径>');
+  }
   console.log('════════════════════════════════════════════════');
   /* 启动即自动连一次 */
   setTimeout(() => runner.connect(), 400);

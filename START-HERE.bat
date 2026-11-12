@@ -42,16 +42,60 @@ if exist "server\node_modules\ws\index.js" (
   echo [v] dependency installed
 )
 
-rem ---- 3. generated data ----
+rem ---- 3. python + generated data ----
+rem   XML import needs python (tools\gen_tags.py).
+rem   "where python" is NOT a valid check: the name may resolve to the
+rem   Microsoft Store placeholder alias (%LOCALAPPDATA%\...\WindowsApps\python.exe)
+rem   which exits with 9009 and prints nothing. So we execute a real script.
+set "PY="
+if not defined MYX_PYTHON goto :st_try_python
+"%MYX_PYTHON%" -c "import sys;sys.exit(0 if sys.version_info>=(3,6) else 1)" >nul 2>nul
+if errorlevel 1 goto :st_try_python
+set "PY=%MYX_PYTHON%"
+goto :st_py_ready
+:st_try_python
+python -c "import sys;sys.exit(0 if sys.version_info>=(3,6) else 1)" >nul 2>nul
+if errorlevel 1 goto :st_try_py
+set "PY=python"
+goto :st_py_ready
+:st_try_py
+py -3 -c "import sys;sys.exit(0 if sys.version_info>=(3,6) else 1)" >nul 2>nul
+if errorlevel 1 goto :st_try_py3
+set "PY=py -3"
+goto :st_py_ready
+:st_try_py3
+python3 -c "import sys;sys.exit(0 if sys.version_info>=(3,6) else 1)" >nul 2>nul
+if errorlevel 1 goto :st_no_py
+set "PY=python3"
+
+:st_py_ready
+echo [v] python: %PY%
 if not exist "server\gen\DEMO_MACHINE.tags.json" (
   echo [.] tag table missing, generating from example XML ...
-  python tools\gen_tags.py --all
+  %PY% tools\gen_tags.py --all
 )
 if not exist "out\DEMO_MACHINE\tag_table.json" (
   echo [.] full symbol table missing, generating ...
-  python tools\gen_tags.py --all
+  %PY% tools\gen_tags.py --all
 )
 echo [v] data ready
+goto :st_data_done
+
+:st_no_py
+if not exist "server\gen\DEMO_MACHINE.tags.json" goto :st_no_py_nodata
+echo [!] python not found -- XML IMPORT WILL NOT WORK ^(browsing existing data is fine^).
+echo     Run 0-check-env.bat for the cause and the fix.
+goto :st_data_done
+
+:st_no_py_nodata
+echo [x] python not found and no generated data yet.
+echo     Install Python 3.8+ from python.org and CHECK "Add python.exe to PATH".
+echo     Then run 0-check-env.bat and start this file again.
+echo.
+pause
+exit /b 1
+
+:st_data_done
 
 echo.
 echo -- starting verification console --

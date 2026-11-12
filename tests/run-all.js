@@ -25,6 +25,7 @@ const FORCE_ALL = ARG === '--all';
 /* 用例清单：level 决定运行条件 */
 const CASES = [
   { file: 'test-union-learn.js', level: 'offline', desc: '类型导航 / UNION 布局学习（纯逻辑）' },
+  { file: 'test-py-probe.js',    level: 'offline', desc: '导入前置：python 探测（9009 / 占位别名 / MYX_PYTHON）' },
   { file: 'test-rate-window.js', level: 'server',  desc: '读成功率滑动窗口算法' },
   { file: 'test-key-parse.js',   level: 'server',  desc: '变量路径解析（数组元素 / 结构体成员）' },
   { file: 'test-member-tree.js', level: 'server',  desc: '结构体成员树接口（折叠结构）' },

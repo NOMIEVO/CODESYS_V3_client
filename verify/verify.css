@@ -581,6 +581,19 @@ main {
 }
 .imp-status.ok { color: var(--cyan); }
 .imp-status.err { color: #FF7B7B; }
+/* 环境自检条：python 缺失时提前示警，别等用户导入失败才发现（退出码 9009 现场） */
+.imp-env {
+  font: 400 11px/1.65 var(--mono);
+  white-space: pre-wrap;
+  padding: 9px 11px;
+  border-radius: 8px;
+  border-left: 2px solid #FFB020;
+  background: rgba(255, 176, 32, .08);
+  color: #FFC766;
+  max-height: 220px;
+  overflow-y: auto;
+}
+.imp-env b { color: #FFD89B; font-weight: 600; }
 
 .apps-title {
   font: 600 11px/1 var(--sans);

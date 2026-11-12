@@ -77,9 +77,12 @@ tools/codesys_symconfig.py ← XML → 布局表（偏移 / 跨度 / 审计报�
 | 项 | 要求 | 用途 |
 |---|---|---|
 | Node.js | **18 或更高** | 服务与客户端 |
-| Python | **3.8 或更高**（仅首次生成点表时需要） | 解析 XML |
+| Python | **3.6 或更高**（导入 XML / 重新生成点表时需要；只用自带数据则不需要） | 解析 XML |
 | 浏览器 | Chrome / Edge 新版 | 验证台界面 |
 | 网络 | 能访问 PLC 的 TCP 11740 | 实际通讯 |
+
+> **先跑 `0-check-env.bat`**：一次体检 Node、依赖 `ws`、Python 三件事，缺什么直接说清怎么补。
+> 这是排查“我这边好好的，别人一导入就失败”的第一入口。
 
 > **依赖说明**：整个项目只有一个第三方依赖 `ws`（WebSocket）。
 > 以**拷贝目录**方式获取时它已附在 `server/node_modules/ws`，完全离线可用；
@@ -206,6 +209,7 @@ APP=DEMO_MACHINE
 CODESYS_V3_client/
 ├── README.md                  ← 本文件
 ├── package.json
+├── 0-check-env.bat            ← 体检：Node / 依赖 ws / Python（导入报 9009 时先跑它）
 ├── START-HERE.bat             ← 一键：检查环境 → 生成数据 → 起服务 → 开浏览器
 ├── 1-gen-tags.bat             ← XML → 数据文件
 ├── 2-run-verify.bat           ← 启动服务（可带程序名参数）
@@ -214,6 +218,7 @@ CODESYS_V3_client/
 ├── server/
 │   ├── codesys-v3-client.js   ← 【核心】协议客户端（535 行）
 │   ├── drill-core.js          ← 【核心】类型导航 / 偏移解码（310 行）
+│   ├── py-probe.js            ← 探测本机 Python（导入 XML 的前置条件，见 docs/02 §0.5）
 │   ├── verify-server.js       ← 验证台服务：HTTP + WebSocket
 │   ├── write-whitelist.json   ← 写入白名单（服务端强校验）
 │   ├── plc-config.example.json ← PLC 地址配置样例
@@ -333,6 +338,7 @@ BOOL 必须按 **1 字节**写入（4 字节会被 PLC 以 `0x0F` 拒绝）。
 | 用例 | 级别 | 验证什么 |
 |---|---|---|
 | `test-union-learn.js` | 离线 | 类型导航、结构展开、UNION 布局对账（合成数据，无需 PLC） |
+| `test-py-probe.js` | 离线 | 导入前置的 python 探测（9009 / Store 占位别名 / MYX_PYTHON 回退） |
 | `test-rate-window.js` | 服务 | 读成功率「最近 80 次」滑动窗口 |
 | `test-key-parse.js` | 服务 | 四类变量写法解析（标量/数组/成员/嵌套） |
 | `test-member-tree.js` | 服务 | 成员树接口返回折叠结构而非平铺 |
@@ -354,6 +360,7 @@ BOOL 必须按 **1 字节**写入（4 字节会被 PLC 以 `0x0F` 拒绝）。
 ════════════════════════════════════════════════
 
   ✓ test-union-learn.js    133ms  类型导航 / UNION 布局学习（纯逻辑）
+  ✓ test-py-probe.js        88ms  导入前置：python 探测（9009 / 占位别名 / MYX_PYTHON）
   ✓ test-rate-window.js    109ms  读成功率滑动窗口算法
   ✓ test-key-parse.js      153ms  变量路径解析（数组元素 / 结构体成员）
   ✓ test-member-tree.js    197ms  结构体成员树接口（折叠结构）
@@ -364,7 +371,7 @@ BOOL 必须按 **1 字节**写入（4 字节会被 PLC 以 `0x0F` 拒绝）。
   ✓ inspect-state.js       159ms  链路状态与事件时间线（人工查看）
 
 ────────────────────────────────────────────────
-  通过 9 · 失败 0 · 跳过 2
+  通过 10 · 失败 0 · 跳过 2
 ```
 
 三种用法：
@@ -486,6 +493,24 @@ python tools/gen_tags.py --list           # 列出已导入程序
 ---
 
 ## 10. 常见问题
+
+**Q：导入 XML 报「gen_tags.py 退出码 9009」，但我这边同一份 XML 是好的**
+A：与 XML 无关，是**那台机器的 `python` 命令跑不起来**。`9009` 是 Windows 的
+「命令未找到」，含义是 `gen_tags.py` **一行都没执行**（没有任何 Python 报错输出就是证据）。
+三种典型原因：
+① 没装 Python；② 装了但安装时没勾 **Add python.exe to PATH**；
+③ `python` 这个名字命中了 `%LOCALAPPDATA%\Microsoft\WindowsApps\python.exe` ——
+那是应用商店的 0 字节**占位别名**，没有真 Python 时执行它直接返回 9009。
+处理：
+- 让对方先跑 **`0-check-env.bat`**，它会逐项检查并指出是哪种情况；
+- 装 Python 3.8+ 并勾上 Add to PATH，**重开**命令行/验证台（已开的进程继承的是旧 PATH）；
+- 已有 Python 但不在 PATH：设 `MYX_PYTHON=C:\Python312\python.exe` 再启动，服务、脚本、
+  `.bat` 都会优先用它；
+- 自检：`python -V` 要能打印 `Python 3.x`，且**不能弹出应用商店**。
+
+> 现在服务端在导入前会先探测解释器（`python` → `py -3` → `python3` → `MYX_PYTHON`），
+> 探测不到时界面顶部会直接给出原因和处置办法，不再只回一个裸退出码；
+> 启动日志也会打印 `导入 python 3.x (…)` 或明确的失败原因。
 
 **Q：握手卡在「NS 查询 · 读帧超时」**
 A：① 确认 IP 端口可达（`telnet 192.168.1.92 11740`）；② 确认没有别的客户端占用——PLC 只接受一条连接，
