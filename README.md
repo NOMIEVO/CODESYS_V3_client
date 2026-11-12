@@ -237,7 +237,8 @@ CODESYS_V3_client/
 │   ├── probe-latency.js       ← 归因探针：扫描耗时是「块数多」还是「单块往返慢」
 │   ├── probe-baseline.js      ← 量出「每次请求」与「每块」两个成本系数（两台设备可比）
 │   ├── probe-roundtrip.js     ← 拆开网络 / Runtime / 每块，定位瓶颈层
-│   └── probe-blockgap.js      ← 逐块到达间隔直方图（看是否被量化到某个节拍）
+│   ├── probe-blockgap.js      ← 逐块到达间隔直方图（看是否被量化到某个节拍）
+│   └── win-nic-check.ps1      ← 工控机网卡/系统参数体检（-Apply 可自动改）
 │   └── points_template.csv    ← 点表模板（批量选点用）
 │
 ├── tests/                     ← 自检用例（见第 7 节）
@@ -566,6 +567,21 @@ node tools/probe-roundtrip.js   <ip> <app>   # TCP连接 vs 协议往返 vs 每�
 node tools/probe-blockgap.js    <ip> <app> <符号>  # 逐块间隔直方图
 ```
 
+网卡侧体检一条命令（在**工控机**上跑，只读，不需要管理员）：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools\win-nic-check.ps1 -PlcIp <PLC_IP>
+```
+
+它会逐项标出「中断调整 / 节能以太网 / 流控制 / LSO / 巨型帧 / 速率双工 / 缓冲区 /
+电源管理 / 过滤驱动 / 链路丢包」，并说明每项为什么该改、改了能拿回多少。
+`-Apply -DryRun` 先看将改什么，`-Apply` 才写入（需管理员）。
+详细清单见 [`docs/05-工控机参数体检.md`](docs/05-工控机参数体检.md)。
+
+> 实测：该工控机 TCP 握手 1.1ms（正常）、协议往返 9.2ms、客户端回 ACK 仅 6µs。
+> 也就是说网卡路径是健康的，**网口速率/带宽不是主因**（150KB 摊到 4.5s 只有约 33KB/s）。
+> 网卡参数能拿回 0.5~1.5ms/操作（约 10~15%），剩下的大头在 Runtime 节拍与符号配置。
+
 处置优先级：① 符号配置里只勾 HMI 真正要用的变量（数组别整条勾）；
 ② 工控机侧查任务/Runtime 周期（块间隔会跟着变，这是唯一确证方法）；
 ③ 关网卡中断节流与节能、关安全软件的网络过滤、电源计划设高性能。
@@ -629,6 +645,7 @@ A：`MYX_VERIFY_PORT` 换端口，或先关掉占 8095 的进程。
 | `docs/02-源码手册.md` | 逐文件、逐函数：职责、入参、返回、关键实现 |
 | `docs/03-复现流程.md` | 从空目录到跑通的完整步骤，每步的预期输出 |
 | `docs/04-示例数据与脱敏说明.md` | 示例工程是合成的、哪些信息被替换、换成自己工程怎么改 |
+| `docs/05-工控机参数体检.md` | 接工控机（Windows RTE）变慢时该查哪些网卡/系统参数、改完怎么验证 |
 
 ---
 
