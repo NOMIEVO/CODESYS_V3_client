@@ -287,9 +287,11 @@ class CodesysV3Client {
       try { ns.sock && ns.sock.destroy(); } catch (_) {}
     }
     await new Promise(r => setTimeout(r, 150));   /* PLC 释放 NS 会话需片刻 */
-    const m = dgram.toString('latin1').indexOf('K\0');
-    this.deviceName = m >= 0
-      ? dgram.slice(m, m + 16).toString('utf16le').replace(/\0/g, '') : '?';
+    /* NS 响应尾部是三段 UTF-16LE 字符串：节点名 / 设备名 / 厂商名。
+       设备名能直接暴露对端是什么 runtime（如硬件 PLC、Control Win、Control RTE、厂商定制），
+       排查「同一客户端换设备就慢」时这是第一个要确认的信息。 */
+    this.nsInfo = parseNsInfo(dgram);
+    this.deviceName = this.nsInfo.deviceName || '?';
     return this.deviceName;
   }
 
@@ -477,6 +479,29 @@ class CodesysV3Client {
     }
     return vals;
   }
+}
+
+/* 解析 NS（名称服务）响应尾部的三段 UTF-16LE 字符串。
+   不同版本响应头长度略有差异（实测 201B / 221B 两种），所以不写死偏移：
+   取尾部第一段连续可打印 UTF-16LE，按 nodeName→deviceName→vendor 顺序取最后三段。 */
+function parseNsInfo(dgram) {
+  const out = { nodeName: '', deviceName: '', vendor: '', raw: dgram.toString('hex') };
+  if (!dgram || dgram.length < 72) return out;
+  const tail = dgram.slice(60);
+  const text = tail.toString('utf16le');
+  const parts = text.split(String.fromCharCode(0))
+    .map(x => x.replace(/[^ -~一-龥]/g, '').trim())
+    .filter(x => x.length >= 2);
+  if (parts.length >= 3) {
+    out.nodeName = parts[parts.length - 3];
+    out.deviceName = parts[parts.length - 2];
+    out.vendor = parts[parts.length - 1];
+  } else if (parts.length === 2) {
+    out.deviceName = parts[0]; out.vendor = parts[1];
+  } else if (parts.length === 1) {
+    out.deviceName = parts[0];
+  }
+  return out;
 }
 
 /* 按类型表解码原始值 Buffer */

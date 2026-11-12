@@ -449,6 +449,7 @@ class Runner {
        否则跑一整天后单次失败会被 99.99% 稀释，看不出近期其实不稳 */
     this.readWin = [];
     this.lastTickAt = 0;            /* 上一帧起始时刻（算实际刷新间隔） */
+    this.deviceInfo = null;         /* 对端设备身份（NS 查询：设备名/厂商/节点） */
     this.rtt = [];                /* 最近 80 次 */
     this.lastError = null;
     this.lastReadAt = null;
@@ -578,6 +579,16 @@ class Runner {
       const name = await c.nsQuery();
       this.log('rx', `← NS 响应 · 设备名 "${name}"`);
       this.stepEnd(ctx, '设备名 ' + name);
+      /* 对端身份：换设备后第一时间要知道对面是什么 runtime
+         （硬件 PLC / Control Win / Control RTE / 厂商定制），否则「同样代码为何慢」无从判断。 */
+      const ns = c.nsInfo || {};
+      this.deviceInfo = {
+        deviceName: ns.deviceName || name || '', vendor: ns.vendor || '', nodeName: ns.nodeName || '',
+      };
+      if (this.deviceInfo.vendor) {
+        this.log('sys', `── 对端 ${this.deviceInfo.deviceName} · ${this.deviceInfo.vendor}`
+          + (this.deviceInfo.nodeName ? ` · 节点 ${this.deviceInfo.nodeName}` : '') + ' ──');
+      }
 
       ctx = this.stepStart(2, '主连接 NS');
       await c.connect();
@@ -1680,7 +1691,9 @@ const server = http.createServer((req, res) => {
     res.end(JSON.stringify({ host: HOST, port: PLC_PORT, tags: TAGS, app: APP_ID,
       appDisplay: APP_DISPLAY,
       whitelist: WHITELIST, readonly: READONLY, period: runner.period,
-      symbolCount: SYMBOLS.length, cfgSource: PLC_CFG.source }));
+      symbolCount: SYMBOLS.length, cfgSource: PLC_CFG.source,
+      /* 对端设备身份（NS 查询得到）：排查「换设备为什么慢」的第一手信息 */
+      device: runner.deviceInfo || null }));
     return;
   }
   /* /api/config：读取当前 PLC 连接参数（界面「PLC 配置」弹窗初始化用） */

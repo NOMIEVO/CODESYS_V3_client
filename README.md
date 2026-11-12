@@ -238,7 +238,8 @@ CODESYS_V3_client/
 │   ├── probe-baseline.js      ← 量出「每次请求」与「每块」两个成本系数（两台设备可比）
 │   ├── probe-roundtrip.js     ← 拆开网络 / Runtime / 每块，定位瓶颈层
 │   ├── probe-blockgap.js      ← 逐块到达间隔直方图（看是否被量化到某个节拍）
-│   └── win-nic-check.ps1      ← 工控机网卡/系统参数体检（-Apply 可自动改）
+│   ├── win-nic-check.ps1      ← 工控机网卡/系统参数体检（-Apply 可自动改）
+│   └── win-rte-check.ps1      ← RTE 实时性体检（虚拟化/电源/时钟校准）
 │   └── points_template.csv    ← 点表模板（批量选点用）
 │
 ├── tests/                     ← 自检用例（见第 7 节）
@@ -645,7 +646,8 @@ A：`MYX_VERIFY_PORT` 换端口，或先关掉占 8095 的进程。
 | `docs/02-源码手册.md` | 逐文件、逐函数：职责、入参、返回、关键实现 |
 | `docs/03-复现流程.md` | 从空目录到跑通的完整步骤，每步的预期输出 |
 | `docs/04-示例数据与脱敏说明.md` | 示例工程是合成的、哪些信息被替换、换成自己工程怎么改 |
-| `docs/05-工控机参数体检.md` | 接工控机（Windows RTE）变慢时该查哪些网卡/系统参数、改完怎么验证 |
+| `docs/05-工控机参数体检.md` | 接工控机变慢时该查哪些网卡/系统参数、改完怎么验证 |
+| `docs/06-RTE实时性排查.md` | 是 Control Win 还是 RTE、官方要求的 BIOS/Windows 项、虚拟化冲突与任务周期 |
 
 ---
 
