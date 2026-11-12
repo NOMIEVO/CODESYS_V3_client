@@ -2,7 +2,7 @@
  "schema": "gen-tags/1",
  "app": "DEMO_MACHINE",
  "generatedFrom": "E:\\Workbuddy\\HMI_CONFIT\\CODESYS_V3_client\\example\\DEMO_MACHINE.Device.Application.xml",
- "generatedAt": "2026-11-12T14:56:54",
+ "generatedAt": "2026-11-12T15:35:25",
  "note": "由 tools/gen_tags.py 从 XML 符号配置自动生成，禁止手改；类型以 XML 为唯一准则。改选点请编辑 server/profiles/DEMO_MACHINE.profile.json",
  "tags": [
   {

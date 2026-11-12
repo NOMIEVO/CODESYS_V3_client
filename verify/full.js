@@ -10,6 +10,7 @@ let onlyChanged = false;
 let changedSet = new Set();
 
 let ws = null;
+let refilterTimer = null;   /* 「只看变化」下的表格重建节流句柄 */
 
 /* ── 启动 ── */
 (async function init() {
@@ -17,8 +18,20 @@ let ws = null;
   connect();
 })();
 
+/* 清空筛选条件（换程序 / 重新导入后必须做）
+   旧程序的 GVL 分组名与搜索词在新程序里往往不存在：分组留着 → filtered() 一行都匹配不到，
+   表格空白、导航却显示「全部 N 个符号」，看上去就像"值不刷新"。 */
+function resetFilters() {
+  curGvl = '*';
+  q = '';
+  onlyChanged = false;
+  const box = $('q'); if (box) box.value = '';
+  const oc = $('onlyChanged'); if (oc) oc.checked = false;
+}
+
 /* 载入元信息 + 符号表并重建表格（程序切换时复用，不重连 WS） */
 async function loadAll() {
+  resetFilters();
   try {
     const m = await (await fetch('/api/meta')).json();
     if (m.app) $('fbarApp').textContent = `程序 ${m.app} · XML 符号表 · 分批登记 · 单轮 ExecuteRead 全量轮询`;
@@ -58,6 +71,16 @@ const WRITABLE_IEC = new Set(['BOOL', 'BYTE', 'SINT', 'USINT', 'INT', 'UINT', 'W
   'DINT', 'UDINT', 'DWORD', 'TIME', 'REAL', 'LREAL', 'LINT']);
 
 function filtered() {
+  /* 防御：分组已失效（换过程序 / 重导入后旧 GVL 不存在）时回退到「全部」，
+     否则整张表会被一个不存在的分组筛成空表 */
+  if (curGvl !== '*' && !SYMS.some(s => s.gvl === curGvl)) {
+    curGvl = '*';
+    const nav = $('fnav');
+    if (nav) {
+      const bs = nav.querySelectorAll('button.gvl');
+      bs.forEach(b => b.classList.toggle('active', b.dataset.gvl === '*'));
+    }
+  }
   return SYMS.filter(s => {
     if (curGvl !== '*' && s.gvl !== curGvl) return false;
     if (q && !(s.name.toLowerCase().includes(q) || s.full.toLowerCase().includes(q)
@@ -209,7 +232,15 @@ function connect() {
       });
       renderStats(m.stats);
       $('stSeq').textContent = m.seq;
+      markFullFrame();
+      countNoVal(items);
       paint();
+      /* 「只看变化」勾选时，行集合取决于 changedSet，必须重建表格；
+         否则勾上那一刻的行就是全部（通常为空），之后有变化也不出现。
+         500ms 节流，避免每帧重排两百多行。 */
+      if (onlyChanged && !refilterTimer) {
+        refilterTimer = setTimeout(() => { refilterTimer = null; buildTable(); }, 500);
+      }
     }
     if (m.t === 'drill') renderDrill(m);
     if (m.t === 'drillw') onDrillWrite(m);
@@ -243,6 +274,36 @@ function renderStats(s) {
   $('stEntries').textContent = s.entries || '--';
   $('stBytes').textContent = s.bytes ? (s.bytes / 1024).toFixed(1) + ' KB' : '--';
   $('stMs').textContent = s.ms ? s.ms + ' ms' : '--';
+}
+
+/* 刷新活性指示：每收到一帧全量数据就记时刻。
+   PLC 值本身可能长时间不变（设备静止），只靠"数字变了"看不出还在刷新，
+   所以这里显式给出最近一次刷新时间；同时统计读不到值的符号数，
+   用来区分「没刷新」和「刷新了但这台 PLC 上没有这个变量」。 */
+let lastFullAt = 0;
+let fullFrames = 0;
+function markFullFrame() {
+  lastFullAt = Date.now();
+  fullFrames++;
+  const el = $('stUpd');
+  if (!el) return;
+  const d = new Date(lastFullAt);
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mm = String(d.getMinutes()).padStart(2, '0');
+  const ss = String(d.getSeconds()).padStart(2, '0');
+  el.textContent = hh + ':' + mm + ':' + ss;
+  el.title = `最近一次全量刷新 ${hh}:${mm}:${ss} · 已收到 ${fullFrames} 帧`;
+}
+
+function countNoVal(items) {
+  const bad = items.filter(it => it.d === '--').length;
+  const el = $('stNoVal');
+  if (!el) return;
+  el.textContent = bad ? `${bad}/${items.length}` : '0';
+  el.className = bad ? 'bad' : '';
+  el.title = bad
+    ? `有 ${bad} 个符号读不到值：多为该变量不存在于当前 PLC（点表来自别的工程），或类型不支持读取`
+    : '全部符号都能读到值';
 }
 
 /* ── 交互 ── */

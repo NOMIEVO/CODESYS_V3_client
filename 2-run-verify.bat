@@ -10,7 +10,7 @@ rem    2-run-verify.bat DEMO_MACHINE     specify
 rem
 rem  Optional environment variables (or just click the IP in the UI):
 rem    MYX_VERIFY_PORT   web port        default 8095
-rem    MYX_HOST          PLC address     default 192.0.2.10
+rem    MYX_HOST          PLC address     default 192.168.1.92
 rem    MYX_PLC_PORT      PLC port        default 11740
 rem    MYX_READONLY=1    read-only mode (all writes disabled)
 rem    MYX_SRC           bind local NIC  (multi-homed machines)

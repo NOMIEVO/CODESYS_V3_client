@@ -38,7 +38,7 @@ const STEPS = [
 ];
 
 /* ══════════ PLC 配置弹窗（IP / 端口） ══════════ */
-let cfgDefaults = { host: '192.0.2.10', port: 11740 };
+let cfgDefaults = { host: '192.168.1.92', port: 11740 };
 
 function showEndpoint(host, port) {
   $('epHost').textContent = host;
@@ -74,13 +74,13 @@ async function saveCfg() {
   const note = $('cfgNote');
   /* 前端先做一遍格式检查，避免明显错误也去打扰 PLC
      ⚠️ 纯数字点 / 前三段是数字 → 必须按 IPv4 严格校验
-        （否则 999.1.1.1、192.0.2.1a 都会被主机名规则放行） */
+        （否则 999.1.1.1、192.168.1.1a 都会被主机名规则放行） */
   const looksLikeIp = /^[\d.]+$/.test(host) || /^\d+\.\d+\.\d+\./.test(host);
   const ipOk = looksLikeIp
     ? (host.split('.').length === 4 && host.split('.').every(x => /^\d{1,3}$/.test(x) && +x <= 255))
     : /^[A-Za-z0-9]([A-Za-z0-9\-.]*[A-Za-z0-9])?$/.test(host);
   const p = Number(port);
-  if (!ipOk) { note.className = 'cfg-note bad'; note.textContent = '✗ IP 格式不正确（例：192.0.2.10，每段 0..255）'; return; }
+  if (!ipOk) { note.className = 'cfg-note bad'; note.textContent = '✗ IP 格式不正确（例：192.168.1.92，每段 0..255）'; return; }
   if (!Number.isInteger(p) || p < 1 || p > 65535) {
     note.className = 'cfg-note bad'; note.textContent = '✗ 端口须为 1..65535 的整数'; return;
   }

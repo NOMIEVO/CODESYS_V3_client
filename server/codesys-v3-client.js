@@ -493,7 +493,7 @@ function decodeValue(key, buf) {
 
 /* ════════════════ main：里程碑 A+B 演示 ════════════════ */
 if (require.main === module) {
-  const host = process.argv[2] || '192.0.2.10';
+  const host = process.argv[2] || '192.168.1.92';
   const NAMES = Object.keys(TAG_TYPES);   /* 与上面的示例变量表保持一致 */
   const sleep = (ms) => new Promise(r => setTimeout(r, ms));
   (async () => {

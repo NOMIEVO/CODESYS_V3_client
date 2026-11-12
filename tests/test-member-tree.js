@@ -21,6 +21,21 @@ function walk(nodes, fn, depth = 0) {
 }
 
 (async () => {
+  /* 前置：本用例围绕演示工程 DEMO_MACHINE 的类型结构。当前程序若已换成
+     自己的工程（变量名不同），打印「跳过」并正常退出——环境不匹配不是缺陷。 */
+  {
+    const need = ['GVL_AXIS.aAxisCtl'];
+    const meta = await (await fetch(BASE + '/api/meta')).json();
+    const ss = (await (await fetch(BASE + '/api/symbols')).json()).symbols || [];
+    const have = new Set(ss.map(s => s.full.replace(/^Application\./, '').split('[')[0]));
+    const miss = need.filter(n => !have.has(n));
+    if (miss.length) {
+      console.log('[i] 跳过：当前程序 ' + (meta.app || '?') + ' 不含 ' + miss.join(', '));
+      console.log('    本用例基于演示工程 DEMO_MACHINE；换自己的工程后按 README 第 5 节改用例里的变量名');
+      process.exit(77);   /* 77 = 跳过（环境不匹配） */
+    }
+  }
+
   console.log('① aAxisCtl[3] 成员树');
   const d = await get('/api/members?base=GVL_AXIS.aAxisCtl&path=%5B3%5D');
   ok(d.ok === true, 'ok=true');

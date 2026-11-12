@@ -25,7 +25,7 @@ const { CodesysV3Client } = require('./codesys-v3-client');
    优先级：plc-config.json（界面保存） > 环境变量 > 内置默认。
    改完立即生效：断开旧连接 → 用新地址重连，无需重启进程。 */
 const CFG_FILE = path.join(__dirname, 'plc-config.json');
-const DEFAULT_PLC_HOST = '192.0.2.10';   /* RFC 5737 文档地址：占位符，非真实设备 */
+const DEFAULT_PLC_HOST = '192.168.1.92';   /* 内置默认 PLC 地址（界面可改，改后落盘 plc-config.json） */
 const DEFAULT_PLC_PORT = 11740;
 
 function readPlcConfig() {
@@ -46,14 +46,14 @@ function validatePlcAddr(host, port) {
   const h = String(host || '').trim();
   if (!h) return 'IP 地址不能为空';
   if (!/^[A-Za-z0-9.\-]+$/.test(h)) return 'IP 只能包含数字、字母、点、连字符';
-  /* 看起来像 IP 就必须是合法 IP：纯数字点，或「前三段都是数字」（192.0.2.1a 属于打字漏了数字） */
+  /* 看起来像 IP 就必须是合法 IP：纯数字点，或「前三段都是数字」（192.168.1.1a 属于打字漏了数字） */
   const looksLikeIp = /^[\d.]+$/.test(h) || /^\d+\.\d+\.\d+\./.test(h);
   if (looksLikeIp) {
     const parts = h.split('.');
     if (parts.length !== 4 || !parts.every(x => /^\d{1,3}$/.test(x) && Number(x) <= 255))
-      return 'IP 格式不正确（例：192.0.2.10，每段 0..255）';
+      return 'IP 格式不正确（例：192.168.1.92，每段 0..255）';
   } else if (!/^[A-Za-z0-9]([A-Za-z0-9\-.]*[A-Za-z0-9])?$/.test(h)) {
-    return 'IP 格式不正确（例：192.0.2.10）';
+    return 'IP 格式不正确（例：192.168.1.92）';
   }
   const p = Number(port);
   if (!Number.isInteger(p) || p < 1 || p > 65535) return '端口须为 1..65535 的整数';

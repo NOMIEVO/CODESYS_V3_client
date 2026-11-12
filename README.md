@@ -9,9 +9,9 @@
 - 用浏览器看清每一步握手、每一次读写、每一帧报文
 
 > **关于示例数据**：仓库内的示例工程 `DEMO_MACHINE` 是**纯合成**的
-> （由 `tools/make-demo-xml.py` 生成），不对应任何真实设备或产线；
-> 文档中的地址 `192.0.2.10` 属 RFC 5737 文档保留网段，是占位符。
-> 代码逻辑与真实工程一致，只是所有名称都做了通用化处理。
+> （由 `tools/make-demo-xml.py` 生成），不对应任何真实设备或产线，所有变量名都做了通用化处理。
+> 默认 PLC 地址 `192.168.1.92:11740` 是开发时实际使用的设备地址，
+> 用于说明默认配置；换到自己的设备上，点界面左上角改一下即可。
 
 ---
 
@@ -103,14 +103,14 @@ tools/codesys_symconfig.py ← XML → 布局表（偏移 / 跨度 / 审计报�
 ════════════════════════════════════════════════
   MYX 协议验证台
   界面  http://127.0.0.1:8095
-  PLC   192.0.2.10:11740
-  点表  21 点 · 白名单 8 项
+  PLC   192.168.1.92:11740
+  点表  23 点 · 白名单 9 项
 ════════════════════════════════════════════════
 ```
 
 浏览器会自动打开 `http://127.0.0.1:8095`。
 
-> **第一次用，先改 PLC 地址**：界面左上角那串 `● 192.0.2.10:11740` 本身是按钮，点它弹出
+> **第一次用，先改 PLC 地址**：界面左上角那串 `● 192.168.1.92:11740` 本身是按钮，点它弹出
 > 「PLC 配置」，填自己的 IP / 端口，点「保存并重连」。地址会存到 `server/plc-config.json`，重启仍生效。
 
 ### 第 3 步：看结果
@@ -257,11 +257,11 @@ CODESYS_V3_client/
 
 ### 5.1 PLC 地址（推荐用界面改）
 
-优先级：`server/plc-config.json` > 环境变量 > 内置默认 `192.0.2.10:11740`
+优先级：`server/plc-config.json` > 环境变量 > 内置默认 `192.168.1.92:11740`
 
 ```json
 {
-  "host": "192.0.2.10",
+  "host": "192.168.1.92",
   "port": 11740,
   "savedAt": "2026-11-12T03:43:48.578Z"
 }
@@ -273,7 +273,7 @@ CODESYS_V3_client/
 
 | 变量 | 默认 | 说明 |
 |---|---|---|
-| `MYX_HOST` | `192.0.2.10` | PLC 地址（被 plc-config.json 覆盖） |
+| `MYX_HOST` | `192.168.1.92` | PLC 地址（被 plc-config.json 覆盖） |
 | `MYX_PLC_PORT` | `11740` | PLC 端口 |
 | `MYX_VERIFY_PORT` | `8095` | 验证台 Web 端口 |
 | `MYX_APP` | 自动选最新 | 用哪套点表（`server/gen/<APP>.tags.json`） |
@@ -389,13 +389,13 @@ node tests/run-all.js
 ### 8.1 独立客户端演示（不经 Web）
 
 ```bash
-node server/codesys-v3-client.js 192.0.2.10
+node server/codesys-v3-client.js 192.168.1.92
 ```
 
 按 7 步握手后读 18 个示例变量 6 轮：
 
 ```
-── 192.0.2.10:11740 直连测试（纯 Node 协议栈，无 dll，只读） ──
+── 192.168.1.92:11740 直连测试（纯 Node 协议栈，无 dll，只读） ──
 ① NS 查询      : 3S CODESYS PLC
    主连接 NS 查询 OK
 ② 开通道        : chId = 0x1
@@ -416,7 +416,7 @@ node server/codesys-v3-client.js 192.0.2.10
 ```js
 const { CodesysV3Client } = require('./server/codesys-v3-client');
 
-const c = new CodesysV3Client('192.0.2.10', 11740, { allowWrite: false });
+const c = new CodesysV3Client('192.168.1.92', 11740, { allowWrite: false });
 
 await c.nsQuery();                 // ① 设备名（独立短连接，用完即关）
 await c.connect();                 // 建立主连接
@@ -488,7 +488,7 @@ python tools/gen_tags.py --list           # 列出已导入程序
 ## 10. 常见问题
 
 **Q：握手卡在「NS 查询 · 读帧超时」**
-A：① 确认 IP 端口可达（`telnet 192.0.2.10 11740`）；② 确认没有别的客户端占用——PLC 只接受一条连接，
+A：① 确认 IP 端口可达（`telnet 192.168.1.92 11740`）；② 确认没有别的客户端占用——PLC 只接受一条连接，
 上一个进程被强杀后 socket 可能还被占着，等 PLC 自己回收（约数秒）或重启 PLC 侧服务；
 ③ 多网卡机器加 `set MYX_SRC=<有线网卡IP>` 固定走有线。
 

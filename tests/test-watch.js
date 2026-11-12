@@ -4,7 +4,7 @@
    断言每个都能收到实时值。用于验证「点表外变量」的读取链路。
    前置：验证台已启动 + PLC 在线，且该 PLC 上存在同名变量。
    若变量不存在（连的是真实设备、而点表是演示工程 DEMO_MACHINE），
-   会打印「跳过」并以退出码 0 结束——环境不匹配，不是缺陷。
+   会打印「跳过」并以退出码 77 结束——环境不匹配，不是缺陷。
 
    用法：node tests/test-watch.js
 */
@@ -35,14 +35,16 @@ ws.on('message', (raw) => {
 });
 
 setTimeout(() => {
-  const miss = KEYS.filter(k => seen[k] === undefined);
+  /* '--' = 服务端登记成功但 PLC 读不到值（变量不存在），不算"有实时值" */
+  const miss = KEYS.filter(k => seen[k] === undefined || seen[k] === '--');
   if (!miss.length) {
     console.log('[v] 全部监控项都有实时值');
+    ws.close(); process.exit(0);
   } else if (miss.length === KEYS.length) {
-    console.log('[i] 跳过：该 PLC 上没有这些变量（当前点表可能是演示工程 DEMO_MACHINE）');
-    console.log('    真机验证请改用自己工程的变量名（改本文件的 KEYS 数组）');
-  } else {
-    console.log('[x] 部分监控项未收到值: ' + miss.join(', '));
+    console.log('[i] 跳过：当前点表（及 PLC）上没有这些变量：' + miss.join(', '));
+    console.log('    用例默认用演示工程 DEMO_MACHINE 的变量；换成自己的工程后改用例里的 KEYS');
+    ws.close(); process.exit(77);   /* 77 = 跳过（环境不匹配） */
   }
-  ws.close(); process.exit(0);
+  console.log('[x] 部分监控项没有有效值: ' + miss.join(', '));
+  ws.close(); process.exit(1);
 }, 9000);

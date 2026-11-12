@@ -3,8 +3,8 @@
    ─────────────────────────────────────────────────────────────
    用法：
      node example/embed-demo.js                       读默认地址的示例变量
-     node example/embed-demo.js 192.0.2.10          指定 PLC 地址
-     node example/embed-demo.js 192.0.2.10 11740    指定地址与端口
+     node example/embed-demo.js 192.168.1.92          指定 PLC 地址
+     node example/embed-demo.js 192.168.1.92 11740    指定地址与端口
 
    演示四件事：
      ① 七步握手（每步打印耗时）
@@ -19,7 +19,7 @@ const path = require('path');
 const CLIENT = path.join(__dirname, '..', 'server', 'codesys-v3-client.js');
 const { CodesysV3Client } = require(CLIENT);
 
-const HOST = process.argv[2] || '192.0.2.10';
+const HOST = process.argv[2] || '192.168.1.92';
 const PORT = Number(process.argv[3] || 11740);
 
 /* 要读的变量（换成自己程序的变量名即可）。

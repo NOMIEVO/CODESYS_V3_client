@@ -1,7 +1,19 @@
-# 运行时产物（不应提交/分发）
+# 运行时产物（不应提交 / 分发）
 server/plc-config.json
 out/*/drill-layout.json
 node_modules/
+
+# 用户导入的原始符号配置（通常是现场真实工程，不入库）
+Test/
+
+# 除示例工程 DEMO_MACHINE 之外的生成产物：
+# 导入自己的工程后这里会全是现场变量名，不能跟着代码一起提交
+server/gen/*
+!server/gen/DEMO_MACHINE.*
+server/profiles/*
+!server/profiles/DEMO_MACHINE.profile.json
+out/*
+!out/DEMO_MACHINE/
 
 # 系统文件
 Thumbs.db

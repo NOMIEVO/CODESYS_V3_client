@@ -29,6 +29,7 @@ const CASES = [
   { file: 'test-key-parse.js',   level: 'server',  desc: '变量路径解析（数组元素 / 结构体成员）' },
   { file: 'test-member-tree.js', level: 'server',  desc: '结构体成员树接口（折叠结构）' },
   { file: 'test-full-write.js',  level: 'server',  desc: '全量页行内写入渲染与提交' },
+  { file: 'test-app-switch.js',  level: 'server',  desc: '换程序/重导入后筛选重置、刷新指示、只看变化' },
   { file: 'test-index-smoke.js', level: 'server',  desc: '首页启动与广播无空引用' },
   { file: 'test-plc-config.js',  level: 'server',  desc: 'PLC 地址配置接口与校验' },
   { file: 'test-input-width.js', level: 'chrome',  desc: '输入框等长（无头 Chrome 实测几何）' },
@@ -82,6 +83,14 @@ async function serverUp() {
     const r = spawnSync(process.execPath, [p], { encoding: 'utf8', timeout: 180000 });
     const ms = Date.now() - t0;
     const out = (r.stdout || '') + (r.stderr || '');
+    /* 77 = 用例主动跳过（变量不在当前 PLC / 工程与用例不匹配）——与「通过」区分开，
+       否则"环境不匹配"会被误读成"这项功能已验证通过" */
+    if (r.status === 77) {
+      skip++;
+      const why = out.split('\n').map(l => l.trim()).find(l => /跳过/.test(l)) || c.desc;
+      console.log(`  – ${c.file.padEnd(22)} ${ms}ms  ${why.replace(/^\[i\]\s*/, '')}`);
+      continue;
+    }
     const okRun = r.status === 0;
     /* t-state / t-watch / t-writetest 是「查看型」：只要退出码 0 即算通过 */
     if (okRun) { pass++; console.log(`  ✓ ${c.file.padEnd(22)} ${ms}ms  ${c.desc}`); }

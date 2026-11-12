@@ -43,6 +43,9 @@ body.full-page {
 }
 .fst span { font: 400 9.5px/1 var(--sans); color: var(--ink-3); letter-spacing: .3px; }
 .fst b { font: 600 12.5px/1 var(--mono); color: var(--ink); }
+.fst b.bad { color: var(--red); }
+/* 「最近更新」用弱化色：它是活性指示，不该抢值的注意力 */
+#stUpd { font-weight: 500; color: var(--ink-2); }
 
 .fbar-r { display: flex; align-items: center; gap: 9px; padding-left: 6px; }
 .mode-btn {
