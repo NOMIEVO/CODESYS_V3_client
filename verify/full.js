@@ -12,6 +12,7 @@ let changedSet = new Set();
 let ws = null;
 let refilterTimer = null;   /* 「只看变化」下的表格重建节流句柄 */
 
+
 /* ── 启动 ── */
 (async function init() {
   await loadAll();
@@ -34,7 +35,7 @@ async function loadAll() {
   resetFilters();
   try {
     const m = await (await fetch('/api/meta')).json();
-    if (m.app) $('fbarApp').textContent = `程序 ${m.app} · XML 符号表 · 分批登记 · 单轮 ExecuteRead 全量轮询`;
+    if (m.app) $('fbarApp').textContent = `程序 ${m.appDisplay || m.app} · XML 符号表 · 分批登记 · 单轮 ExecuteRead 全量轮询`;
     const r = await fetch('/api/symbols');
     const d = await r.json();
     SYMS = d.symbols;
@@ -132,7 +133,12 @@ function buildTable() {
     const comp = /^(ARRAY|D_|T_)/.test(s.type);
     const rw = /w/i.test(s.access || '');
     let act = '';
-    if (comp) {
+    if (s.elem && s.elem.writable) {
+      /* 元素是标量（BOOL/INT/REAL…）：弹窗分页看全部元素值，一页 20 个 */
+      const on = arrView && arrView.full === s.full && !$('amodal').hidden;
+      act = `<button class="apbtn${on ? ' on' : ''}" data-f="${esc(s.full)}">${on ? '已打开' : '分页'}</button>`;
+    } else if (comp) {
+      /* 结构体数组 / 结构体 / 设备类型：成员树弹窗 */
       act = `<button class="drill" data-f="${esc(s.full)}">展开</button>`;
     } else if (isWritableScalar(s)) {
       /* 行内直接给输入框：不用先点「写」才出现，看到就能改 */
@@ -140,17 +146,259 @@ function buildTable() {
     } else {
       act = `<span class="ro">${rw ? '不可单值写' : '只读'}</span>`;
     }
-    return `<tr data-f="${esc(s.full)}">
+    const row = `<tr data-f="${esc(s.full)}">
       <td class="v-name"><span class="gvl">${esc(gvlShort)}.</span>${esc(s.name)}</td>
       <td class="v-type">${esc(s.type)}</td>
       <td class="v-val" data-v="${esc(s.full)}">--</td>
       <td class="v-size">${s.bytes}B</td>
       <td class="v-act">${act}</td>
     </tr>`;
+    return row;
   }).join('');
   $('resultHint').textContent = `${list.length} 个`;
   paint();
 }
+
+/* ────────── 大数组分页弹窗 ──────────
+   元素上千的数组（ARRAY[0..1999] OF REAL）不能整表铺开：
+   弹窗里一页 20 个，可 ◀ / ▶ 翻页、直接输页码跳转，**每个元素都能单独写入**。
+   写入沿用首页同一契约（writeTest / mode=set），服务端复验 XML access + 类型。 */
+
+const AP_SIZE = 20;          /* 每页元素数 */
+
+let arrView = null;          /* { full, name, base, lo, hi, total, page, pages, size, values } */
+let arrLoading = false;
+let arrPaintAt = 0;          /* 上次刷新时刻（节流） */
+
+/* 打开弹窗并载入指定页 */
+async function openArrPage(full, page) {
+  const sym = SYMS.find(s => s.full === full);
+  if (!sym || !sym.elem) return;
+  if (!arrView || arrView.full !== full) {
+    arrView = { full, name: sym.name, base: sym.elem.base, lo: sym.elem.lo,
+                hi: sym.elem.hi, total: sym.elem.count, page: 0,
+                pages: Math.ceil(sym.elem.count / AP_SIZE), size: AP_SIZE, values: [] };
+    $('aname').textContent = (sym.gvl ? sym.gvl.replace(/^.*\./, '') + '.' : '') + sym.name;
+    $('atype').textContent = sym.type + (sym.bytes ? ' · ' + sym.bytes + 'B' : '');
+    $('acomment').textContent = sym.comment || '';
+    $('amodal').hidden = false;
+    $('atbody').innerHTML = '<tr><td colspan="4" class="ap-empty">正在读取…</td></tr>';
+    $('ahint').textContent = '';
+    $('ahint').className = 'dhint';
+  }
+  arrLoading = true;
+  try {
+    const r = await fetch(`/api/arrayvals?key=${encodeURIComponent(full)}&page=${page}&size=${AP_SIZE}`);
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.error || '读取失败');
+    arrView = Object.assign(arrView, d);
+    arrView.error = null;
+  } catch (e) {
+    if (arrView) arrView.error = e.message;
+  }
+  arrLoading = false;
+  arrPaintAt = Date.now();
+  renderArrPage();
+}
+
+function closeArrPage() {
+  arrView = null;
+  $('amodal').hidden = true;
+  buildTable();          /* 让行上的按钮从「已打开」回到「分页」 */
+}
+
+/* 渲染当前页：工具栏状态 + 元素行（每行自带写入控件） */
+function renderArrPage() {
+  const v = arrView;
+  if (!v) return;
+
+  /* ── 工具栏 ── */
+  const inp = $('apage');
+  if (document.activeElement !== inp) inp.value = v.page + 1;
+  inp.max = v.pages;
+  $('apages').textContent = v.pages;
+  $('arange').textContent = `元素 ${v.from}..${v.to}`;
+  $('ams').textContent = `${v.total} 个`;
+  $('ameta').textContent = `${v.base} · 每元素 ${v.esz}B`
+    + (v.error ? ' · ✗ ' + v.error : (v.online === false ? ' · 离线（结构来自 XML）' : ''));
+  $('aprev').disabled = arrLoading || v.page <= 0;
+  $('anext').disabled = arrLoading || v.page >= v.pages - 1;
+
+  /* ── 元素行：值 + 写入控件 ── */
+  const tb = $('atbody');
+  const t = String(v.base || '').toUpperCase();
+  const isBool = t === 'BOOL';
+  const writable = !!v.writable;
+
+  /* 行集合变了才重建（翻页 / 换数组），同页刷新只改值与行内控件 */
+  const sig = `${v.full}|${v.page}|${v.values.length}`;
+  if (tb.dataset.sig !== sig) {
+    tb.dataset.sig = sig;
+    tb.innerHTML = v.values.map(x => {
+      let ctl = '<span class="ro">只读</span>';
+      if (writable) {
+        ctl = isBool
+          ? `<select class="dnum" data-i="${x.i}" data-t="BOOL">
+               <option value="0">0 · FALSE</option><option value="1">1 · TRUE</option></select>
+             <button class="dw" data-i="${x.i}">写入</button>`
+          : `<input class="dnum" data-i="${x.i}" type="number" step="any" placeholder="写入值">
+             <button class="dw" data-i="${x.i}">写入</button>`;
+      }
+      return `<tr data-i="${x.i}">
+        <td class="a-idx">[${x.i}]</td>
+        <td class="d-type">${esc(v.base)}</td>
+        <td class="d-val" data-v="${x.i}">${esc(x.d)}</td>
+        <td class="d-wio">${ctl}</td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="4" class="ap-empty">该页没有元素</td></tr>';
+    /* 新页：写入框留空（不预填当前值，避免误提交旧值；点值可一键带入） */
+    tb.querySelectorAll('select.dnum').forEach(sel => {
+      const tr = sel.closest('tr');
+      const cur = tr && tr.querySelector('.d-val').textContent;
+      if (cur === 'TRUE') sel.value = '1';
+    });
+  } else {
+    /* 同页刷新：只更新值文本，不动用户正在编辑的输入框 */
+    tb.querySelectorAll('td.d-val').forEach(td => {
+      const x = v.values.find(y => String(y.i) === td.dataset.v);
+      if (!x) return;
+      if (td.textContent === x.d) return;
+      td.textContent = x.d;
+      const tr = td.closest('tr');
+      if (tr) { tr.classList.remove('flash'); void tr.offsetWidth; tr.classList.add('flash'); }
+      /* BOOL 下拉跟随（未改动、未聚焦时） */
+      const sel = tr && tr.querySelector('select.dnum');
+      if (sel && document.activeElement !== sel && sel.dataset.dirty !== '1') {
+        if (x.d === 'TRUE') sel.value = '1';
+        else if (x.d === 'FALSE') sel.value = '0';
+      }
+    });
+  }
+
+  $('ahint').className = 'dhint' + (v.error ? ' bad' : '');
+  $('ahint').textContent = v.error
+    ? '✗ ' + v.error
+    : (v.online === false
+      ? '链路离线：结构来自 XML，值待上线后刷新'
+      : '值随链路自动刷新（每 500ms）· 写入按元素名单独下发，写入后保留');
+}
+
+function gotoPage(page) {
+  if (!arrView || arrLoading) return;
+  const p = Math.max(0, Math.min(arrView.pages - 1, page));
+  if (p === arrView.page) return;
+  arrView.page = p;
+  openArrPage(arrView.full, p);
+}
+
+/* 全量帧到达时刷新当前页（节流 800ms） */
+function refreshArrIfOpen() {
+  if (!arrView || arrLoading || $('amodal').hidden) return;
+  if (Date.now() - arrPaintAt < 800) return;
+  arrPaintAt = Date.now();
+  openArrPage(arrView.full, arrView.page);
+}
+
+/* ── 事件：翻页 / 页码跳转 / 关闭 / 写入 ── */
+$('aprev').onclick = () => gotoPage((arrView ? arrView.page : 0) - 1);
+$('anext').onclick = () => gotoPage((arrView ? arrView.page : 0) + 1);
+$('aclose').onclick = () => closeArrPage();
+$('arefresh').onclick = () => { if (arrView) openArrPage(arrView.full, arrView.page); };
+$('amodal').addEventListener('click', (e) => { if (e.target === $('amodal')) closeArrPage(); });
+
+$('apage').onkeydown = (e) => {
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+  const n = Number($('apage').value);
+  if (!Number.isInteger(n) || n < 1 || n > (arrView ? arrView.pages : 1)) {
+    $('apage').classList.add('bad'); return;
+  }
+  $('apage').classList.remove('bad');
+  gotoPage(n - 1);                            /* 界面 1 基 → 内部 0 基 */
+};
+$('apage').onblur = () => {
+  $('apage').classList.remove('bad');
+  if (arrView) $('apage').value = arrView.page + 1;
+};
+
+/* 写入控件：改动标记（不被刷新覆盖） */
+$('atbody').addEventListener('input', (e) => {
+  const c = e.target.closest('.dnum'); if (c) c.dataset.dirty = '1';
+});
+$('atbody').addEventListener('change', (e) => {
+  const c = e.target.closest('.dnum'); if (c) c.dataset.dirty = '1';
+});
+
+/* 点当前值：一键带入写入框（常用「改一点点」场景） */
+$('atbody').addEventListener('click', (e) => {
+  const td = e.target.closest('td.d-val');
+  if (!td) return;
+  const tr = td.closest('tr');
+  const ctl = tr && tr.querySelector('.dnum');
+  if (!ctl) return;
+  if (ctl.tagName === 'SELECT') return;
+  ctl.value = td.textContent;
+  ctl.dataset.dirty = '1';
+  ctl.focus(); ctl.select && ctl.select();
+});
+
+/* 行内「写入」/ 回车提交 */
+$('atbody').addEventListener('click', (e) => {
+  const btn = e.target.closest('button.dw');
+  if (btn) submitArrWrite(btn.closest('tr'));
+});
+$('atbody').addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter') return;
+  const ctl = e.target.closest('.dnum');
+  if (!ctl) return;
+  e.preventDefault();
+  submitArrWrite(ctl.closest('tr'));
+});
+
+function submitArrWrite(tr) {
+  if (!tr || !arrView) return;
+  const idx = tr.dataset.i;
+  const ctl = tr.querySelector('.dnum');
+  if (!ctl) return;
+  if (ctl.value === '') { $('ahint').className = 'dhint bad'; $('ahint').textContent = '⚠ 请先填入写入值'; return; }
+  const val = Number(ctl.value);
+  if (!isFinite(val)) { $('ahint').className = 'dhint bad'; $('ahint').textContent = '⚠ 写入值无效'; return; }
+  const key = `${arrView.full.replace(/^Application\./, '')}[${idx}]`;
+  arrWriteTarget = key;
+  writePending = true;
+  $('ahint').className = 'dhint';
+  $('ahint').textContent = `写入中：${arrView.name}[${idx}] ← ${val} …`;
+  /* 与首页/表格同一契约：key 不带 Application. 前缀，mode=set 写入后保留 */
+  ws && ws.send(JSON.stringify({ cmd: 'writeTest', key, mode: 'set', value: val }));
+}
+
+/* writeTest 结论回填到弹窗（只接住本弹窗发起的写入，避免与首页写入互相干扰） */
+let arrWriteTarget = null;
+
+/* 弹窗写入结论：只在弹窗打开且这次写入由弹窗发起时接管 */
+function onArrWriteMsg(m) {
+  if (!arrWriteTarget || !arrView || $('amodal').hidden) return;
+  const hint = $('ahint');
+  if (!hint) return;
+  hint.className = 'dhint' + (m.level === 'err' ? ' bad' : m.level === 'ok' ? ' ok' : '');
+  hint.textContent = m.text || '';
+  if (/^└/.test(m.text || '')) {
+    const okRun = /成功/.test(m.text || '');
+    if (!okRun) { console.log('[arr] 写入未达预期：' + m.text); }
+    arrWriteTarget = null;
+    writePending = false;
+    /* 立刻回读当前页，让改动马上反映出来（不等下一帧节流） */
+    openArrPage(arrView.full, arrView.page);
+  }
+}
+
+/* 分页按钮：表格行上点「分页」打开弹窗 */
+$('tbody').addEventListener('click', (e) => {
+  const btn = e.target.closest('button.apbtn');
+  if (!btn) return;
+  arrWriteTarget = null;
+  openArrPage(btn.dataset.f, 0);
+});
 
 /* 把 VALUES 刷到表格（只改变化的单元格）
    行内输入框：非聚焦且未被用户改过时才跟随实时值，否则会把正在填的数字冲掉 */
@@ -241,14 +489,16 @@ function connect() {
       if (onlyChanged && !refilterTimer) {
         refilterTimer = setTimeout(() => { refilterTimer = null; buildTable(); }, 500);
       }
+      refreshArrIfOpen();          /* 分页面板开着：跟随刷新当前页的值 */
     }
     if (m.t === 'drill') renderDrill(m);
     if (m.t === 'drillw') onDrillWrite(m);
-    if (m.t === 'wtest') { showDrillHint(m); onRowWriteMsg(m); }
+    if (m.t === 'wtest') { showDrillHint(m); onRowWriteMsg(m); onArrWriteMsg(m); }
     if (m.t === 'wcur') onRowWriteCur(m);
     if (m.t === 'app') {
       /* 程序切换：表格里的符号全变了，写入条与值一并作废（WS 已连着，不必重连） */
       writePending = false; VALUES = {}; changedSet = new Set();
+      arrView = null;              /* 换程序：符号都变了，分页面板作废 */
       loadAll();
     }
   };

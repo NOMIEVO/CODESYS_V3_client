@@ -450,6 +450,12 @@ class Runner {
     this.tagTasks = [];           /* 主点表分批列表（协议约束：单次登记 ≤2 块）[{start,names,handle}] */
     this.fullTasks = [];          /* [{kind, names[], syms[], handle}] */
     this.fullValues = {};         /* fullName → { dec, disp, ts } */
+    /* ── 大数组分页查看 ──
+       元素数上千的数组（ARRAY[0..1999] OF REAL 这类）不能整表铺开，
+       前端按页要值。为了不在翻页时额外读 PLC，scanFull 顺手把**被查看符号**的
+       原始 buffer 留一份（每轮覆盖，天然最新）；没被查看的符号不占内存。 */
+    this.keepRaw = new Set();     /* 正在被分页查看的符号 full 名 */
+    this.arrayRaw = {};           /* fullName → { buf, ts } 最近一轮的原始字节 */
     /* ── 前端监控列表（含数组元素 / 点表外标量）实时值 ──
        这些名字不在主点表也不在整符号级全量列表里，需单独分批登记读取 */
     this.watchKeys = [];          /* 前端传来的 key（不含 Application. 前缀） */
@@ -833,6 +839,8 @@ class Runner {
       this.fullStats.bytes += (c.lastReadPayload || { length: 0 }).length;
       t.syms.forEach((sym, i) => {
         const raw = bufs[i] || null;
+        /* 正在被分页查看的数组：留一份原始字节，翻页时本地解码，不再打扰 PLC */
+        if (raw && this.keepRaw.has(sym.full)) this.arrayRaw[sym.full] = { buf: raw, ts: Date.now() };
         const dec = raw ? decodeSymbol(sym, raw) : { kind: 'none' };
         const disp = dispSymbol(sym, dec);
         const prev = this.fullValues[sym.full];
@@ -843,6 +851,86 @@ class Runner {
       });
     }
     this.broadcast({ t: 'full', seq: this.seq, ts: Date.now(), items, stats: this.fullStats });
+  }
+
+  /* ── 大数组分页取值 ──
+     元素数上千的数组（ARRAY[0..1999] OF REAL）不能整表铺开：一页 20 个正好能看全，
+     又不会把表格撑到 2000 行。
+     数据来源优先级：
+       ① scanFull 上一轮为该符号留下的原始字节（每 500ms 自动更新，翻页零额外通讯）
+       ② 缓存缺失/过期 → 从已登记的读取列表里取一次（不新建 PrepareRead）
+     解码在服务端做（readBase 按元素基类型 + 步长），前端只拿 20 个字符串。 */
+  async arrayPage(key, page = 0, size = 20) {
+    const full = 'Application.' + String(key || '').replace(/^Application\./, '');
+    const sym = SYMBOLS.find(s => s.full === full);
+    if (!sym) throw new Error('符号不存在：' + key);
+    if (!sym.elem) throw new Error(key + ' 不是数组（无元素元信息）');
+
+    const { lo, hi } = sym.elem;
+    const total = hi - lo + 1;
+    const per = Math.max(1, Math.min(200, Number(size) || 20));
+    const pages = Math.max(1, Math.ceil(total / per));
+    const pg = Math.max(0, Math.min(pages - 1, Number(page) || 0));
+
+    this.keepRaw.add(full);          /* 请求后即纳入缓存，后续轮次自动保留 */
+
+    const esz = Math.max(1, Math.round(sym.elem.size || 1));
+    const base = String(sym.elem.base || '').toUpperCase();
+
+    /* 取原始字节：先看缓存（2s 内算新鲜），否则读一次 */
+    let raw = null;
+    const cached = this.arrayRaw[full];
+    if (cached && Date.now() - cached.ts < 2000) raw = cached.buf;
+    if (!raw && this.state === 'online' && this.client) {
+      raw = await this.q(async () => {
+        const c = this.client;
+        const prevH = c.readListHandle;
+        const slot = (() => {
+          for (const t of this.fullTasks) {
+            const i = t.names.indexOf(full);
+            if (i >= 0) return { task: t, index: i };
+          }
+          return null;
+        })();
+        try {
+          if (slot) {
+            c.readListHandle = slot.task.handle;
+            const bufs = await c.executeRead();
+            return bufs[slot.index] || null;
+          }
+          /* 兜底：单符号临时登记（1 块，安全），读完只恢复句柄指针 */
+          await c.prepareRead([full]);
+          const bufs = await c.executeRead();
+          return bufs[0] || null;
+        } finally { c.readListHandle = prevH; }
+      });
+      if (raw) this.arrayRaw[full] = { buf: raw, ts: Date.now() };
+    }
+
+    const from = lo + pg * per;
+    const to = Math.min(hi, from + per - 1);
+    const values = [];
+    for (let i = from; i <= to; i++) {
+      const off = (i - lo) * esz;
+      let d = '--';
+      if (raw && off + esz <= raw.length) {
+        const v = readBase(base, raw, off);
+        if (v !== null && v !== undefined) d = base === 'BOOL' ? (v ? 'TRUE' : 'FALSE') : String(v);
+      }
+      values.push({ i, d });
+    }
+    /* 能否逐个写：元素基类型属可写 IEC 且符号 access 含 w
+       （WRITABLE_IEC 是主点表/全量页共用的那套白名单，与 symTag() 判定一致） */
+    const writable = WRITABLE_IEC.has(base)
+      && String(sym.access || '').toLowerCase().includes('w');
+
+    return {
+      ok: true, full: sym.full, name: sym.name, base, esz, writable,
+      lo, hi, total, size: per, page: pg, pages,
+      from, to, values,
+      ts: cached ? cached.ts : Date.now(),
+      online: this.state === 'online',
+    };
   }
 
   pushRtt(ms) {
@@ -884,7 +972,8 @@ class Runner {
     /* 清空旧程序运行态（值缓存/全量表/钻取登记/学习记录） */
     this.values = {}; this.rawValues = {};
     this.fullTasks = []; this.fullValues = {};
-    this.drillCache = {}; this.learnFail = {};
+    this.arrayRaw = {};          /* 换程序：符号都变了，缓存作废 */
+    this.drillCache = {}; this.learnFail = {}
     this.drillLayout = loadDrillLayout();
     this.emitState();
     /* 通知所有页面：程序已切换（点表/白名单/符号数随行） */
@@ -922,7 +1011,8 @@ class Runner {
     /* 连接态清空（点表/符号表保留：还是同一个程序） */
     this.values = {}; this.rawValues = {};
     this.fullTasks = []; this.fullValues = {};
-    this.watchTasks = []; this.watchValues = {};
+    this.arrayRaw = {};
+    this.watchTasks = []; this.watchValues = {}
     this.drillCache = {}; this.learnFail = {};
     this.emitState();
 
@@ -1264,6 +1354,12 @@ class Runner {
       emit(w.ok ? 'ok' : 'err', `│ ③ 09/04 写入 status=0x${w.status.toString(16)} · ${Date.now() - t1}ms`);
       if (!w.ok) { emit('err', '└ ✗ 写入被拒（status≠0），PLC 未变更'); return { ok: false, status: w.status }; }
 
+      /* 写入后作废该符号的分页缓存：不删的话 /api/arrayvals 会继续返回
+         2s 内的旧字节，界面表现为"写了但值没变"（尤其数组元素） */
+      const rootFull = full.replace(/\[\d+\]$/, '');
+      delete this.arrayRaw[rootFull];
+      delete this.arrayRaw[full];
+
       const back = await readOnce();
       this.broadcast({ t: 'wcur', key, value: back });   /* 前端回读值同步（点表外变量靠这个刷新） */
       const same = Math.abs(Number(back) - Number(target)) < 1e-9 || (tag.type === 'BOOL' && +!!back === +!!target);
@@ -1519,6 +1615,23 @@ const server = http.createServer((req, res) => {
   /* /api/members?base=<符号名>&path=<路径后缀，如 [3] 或 [3].tState>
      展开结构体（或结构体数组元素）下所有可写标量成员，供写入弹窗选择。
      返回 rel = 相对该符号的路径后缀，前端拼成完整 key 即可读写。 */
+  /* ── 大数组分页取值（全量页「分页」按钮用）──
+     /api/arrayvals?key=GVL.CommValue&page=0&size=20
+     返回该页 20 个元素的值 + 分页元信息；页大小夹在 1..200。 */
+  if (p === '/api/arrayvals') {
+    const key = String(qp.get('key') || '');
+    const page = Number(qp.get('page') || 0);
+    const size = Number(qp.get('size') || 20);
+    runner.arrayPage(key, page, size).then(d => {
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify(d));
+    }).catch(e => {
+      res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify({ ok: false, error: e.message }));
+    });
+    return;
+  }
+
   if (p === '/api/members') {
     const send = (code, obj) => {
       res.writeHead(code, { 'Content-Type': 'application/json; charset=utf-8' });

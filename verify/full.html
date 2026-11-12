@@ -61,6 +61,48 @@
 </div>
 
 <!-- 结构体钻取弹窗：成员值查看 + 可写成员直接写入 -->
+<!-- ══════════ 大数组分页弹窗 ══════════
+     元素上千的数组（ARRAY[0..1999] OF REAL）按页浏览：一页 20 个，
+     可前后翻页或直接输页码跳转；每个元素带独立的写入控件。 -->
+<div class="dmodal" id="amodal" hidden>
+  <div class="dcard acard">
+    <header class="dhead">
+      <div class="dtitle">
+        <b id="aname">--</b>
+        <span class="dtype" id="atype">--</span>
+        <span class="dcomment" id="acomment"></span>
+      </div>
+      <div class="dact">
+        <span class="dms" id="ams"></span>
+        <button class="dbtn" id="arefresh" title="重新读取当前页">刷新</button>
+        <button class="dbtn warn" id="aclose">✕ 关闭</button>
+      </div>
+    </header>
+
+    <div class="ap-bar">
+      <button class="apnav" id="aprev" title="上一页">◀</button>
+      <span class="ap-pos">第 <input class="ap-page" id="apage" type="number" min="1" value="1"> / <b id="apages">--</b> 页</span>
+      <button class="apnav" id="anext" title="下一页">▶</button>
+      <span class="ap-range" id="arange"></span>
+      <span class="spacer"></span>
+      <span class="ap-meta" id="ameta"></span>
+    </div>
+
+    <div class="dscroll">
+      <table class="dtable atable">
+        <thead><tr>
+          <th style="width:16%">下标</th>
+          <th style="width:10%">类型</th>
+          <th style="width:26%">当前值</th>
+          <th style="width:48%">写入</th>
+        </tr></thead>
+        <tbody id="atbody"></tbody>
+      </table>
+    </div>
+    <div class="dhint" id="ahint"></div>
+  </div>
+</div>
+
 <div class="dmodal" id="dmodal" hidden>
   <div class="dcard">
     <header class="dhead">

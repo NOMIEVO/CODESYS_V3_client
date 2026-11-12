@@ -31,6 +31,7 @@ const CASES = [
   { file: 'test-full-write.js',  level: 'server',  desc: '全量页行内写入渲染与提交' },
   { file: 'test-app-switch.js',  level: 'server',  desc: '换程序/重导入后筛选重置、刷新指示、只看变化' },
   { file: 'test-elem-nav.js',    level: 'server',  desc: '结构体数组元素间切换（◀ ▶ / 下标）' },
+  { file: 'test-array-page.js',  level: 'server',  desc: '大数组分页取值（一页 20 个 / 页码跳转）' },
   { file: 'test-index-smoke.js', level: 'server',  desc: '首页启动与广播无空引用' },
   { file: 'test-plc-config.js',  level: 'server',  desc: 'PLC 地址配置接口与校验' },
   { file: 'test-input-width.js', level: 'chrome',  desc: '输入框等长（无头 Chrome 实测几何）' },
