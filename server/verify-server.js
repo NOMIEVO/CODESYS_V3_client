@@ -133,6 +133,7 @@ function saveDrillLayout(store) {
 /* ── 程序数据热加载：点表 + 全量符号表 + 类型库 + 写白名单，一次全部刷新 ── */
 let GEN_TAGS = null, TAGS = [];
 let SYMBOLS = [], SCALARS = [], COMPOSITES = [];
+let BIG_SYM_BYTES = 0;            /* 0 = 全部符号都进周期扫描（默认）。见下方 loadAppData 注释 */
 let TYPES = {};
 let WHITELIST = [];
 
@@ -176,6 +177,21 @@ function loadAppData(app) {
   }
   SCALARS = SYMBOLS.filter(s => !/^ARRAY|^D_|^T_/.test(s.type));
   COMPOSITES = SYMBOLS.filter(s => /^ARRAY|^D_|^T_/.test(s.type));
+  /* ── 大符号：默认【完整读】，可选按需读 ──
+     硬规则（2026-11-12 用户指定）：全量变量页必须完整刷新，任何符号都不能被排除在
+     周期扫描之外。所以 MYX_BIG_SYM_BYTES 默认 0 = 全部登记、全部轮询。
+
+     为什么曾经考虑排除（现场反馈「数据量才 31KB，扫描却 580ms」）：
+     PLC 把响应按 ≤448B 一块切分，且**每块都必须单独 ACK**，
+     耗时 ≈ 块数 × 单块往返。32KB 数组 = 约 72 块 → 有线 58ms，Wi-Fi 580ms。
+     ⚠ 这笔开销无法靠调参消除：逐块 ACK 是协议强制（不回 ACK 会被判通道错误 8400），
+       只能从链路（换有线 / 固定网卡 / 关键节能）或数据面（PLC 侧少暴露大数组）解决。
+     诊断请用 tools/probe-latency.js：它把「单块往返」与「每块耗时」分开报。
+     个别场景若确实想牺牲刷新换速度，可显式设 MYX_BIG_SYM_BYTES=4096 开启按需读。 */
+  BIG_SYM_BYTES = Number(process.env.MYX_BIG_SYM_BYTES || 0);
+  for (const s of SYMBOLS) {
+    s.onDemand = BIG_SYM_BYTES > 0 && s.bytes > BIG_SYM_BYTES && /^ARRAY|^D_|^T_/.test(s.type);
+  }
   /* 写白名单（单一事实源 write-whitelist.json，按当前程序过滤换程序残留项） */
   try {
     const all = JSON.parse(fs.readFileSync(path.join(__dirname, 'write-whitelist.json'), 'utf8')).allow || [];
@@ -432,6 +448,7 @@ class Runner {
     /* 最近 80 次读结果（1 成功 / 0 失败）：读成功率按此窗口算，不用累计值——
        否则跑一整天后单次失败会被 99.99% 稀释，看不出近期其实不稳 */
     this.readWin = [];
+    this.lastTickAt = 0;            /* 上一帧起始时刻（算实际刷新间隔） */
     this.rtt = [];                /* 最近 80 次 */
     this.lastError = null;
     this.lastReadAt = null;
@@ -672,7 +689,11 @@ class Runner {
   /* ── 全量列表建立 ──
      协议约束（实测）：PrepareRead 载荷 >1 块（468B）会触发 PLC 接收缓冲配额问题，
      连续 2 次 2 块登记后第 3 次必回通道错误 8400。因此每批严格控制在 1 块以内，
-     标量切 ~25 批、复合符号每符号 1 批，共约 46 个列表；之后每轮仅发 ExecuteRead。 */
+     标量切 ~25 批、复合符号每符号 1 批；之后每轮仅发 ExecuteRead。
+
+     默认全部登记（含大数组/结构体）：全量页必须完整刷新。
+     仅当显式设了 MYX_BIG_SYM_BYTES>0 时，超过该字节数的复合符号才不登记，
+     改为 arrayPage / drill 点开时按需读。 */
   async buildFullLists(c) {
     const BUDGET = 460, HEAD = 24;
     const entrySize = (f) => { const n = Buffer.byteLength(f) + 1; return (n + 4 + 3) & ~3; };
@@ -689,7 +710,8 @@ class Runner {
 
     const tasks = [
       ...pack(SCALARS).map((b, i) => ({ kind: '标量批' + (i + 1), syms: b, names: b.map(s => s.full) })),
-      ...COMPOSITES.map((s) => ({ kind: '复合 ' + s.name, syms: [s], names: [s.full] })),
+      ...COMPOSITES.filter(s => !s.onDemand)
+        .map((s) => ({ kind: '复合 ' + s.name, syms: [s], names: [s.full] })),
     ];
 
     const t0 = Date.now();
@@ -699,7 +721,17 @@ class Runner {
       catch (e) { this.log('err', `✗ ${t.kind} 登记失败：${e.message.slice(0, 60)}`); }
     }
     this.fullTasks = tasks.filter(t => t.handle);
-    this.fullStats = { lists: this.fullTasks.length, entries: 0, bytes: 0, ms: 0, regMs: Date.now() - t0 };
+    const od = COMPOSITES.filter(s => s.onDemand);
+    this.fullStats = {
+      lists: this.fullTasks.length, entries: 0, bytes: 0, ms: 0, blocks: 0,
+      regMs: Date.now() - t0,
+      onDemand: od.length,
+      onDemandBytes: od.reduce((a, s) => a + (s.bytes || 0), 0),
+    };
+    if (od.length) {
+      this.log('sys', `── 已启用按需读（MYX_BIG_SYM_BYTES=${BIG_SYM_BYTES}）：${od.length} 个符号不进周期扫描（`
+        + `${(this.fullStats.onDemandBytes / 1024).toFixed(1)}KB）。默认配置下应无输出 ──`);
+    }
     return ok;
   }
 
@@ -768,6 +800,10 @@ class Runner {
       if (this.state !== 'online') return;
       const c = this.client;
       const t0 = Date.now();
+      /* 上一帧到这一帧的实际间隔（含上一轮耗时）。period 只是「两轮之间的空闲」，
+         完整扫描很慢时真实刷新间隔 = period + 上一轮耗时，必须如实暴露。 */
+      const gap = this.lastTickAt ? t0 - this.lastTickAt : 0;
+      this.lastTickAt = t0;
       try {
         /* 主点表已分批（tagTasks）：逐列表 ExecuteRead，结果按 start 合并回 TAGS 顺序 */
         const bufs = new Array(TAGS.length).fill(null);
@@ -806,6 +842,13 @@ class Runner {
           try { await this.scanFull(c); }
           catch (e) { this.log('err', '✗ 全量扫描失败：' + e.message.slice(0, 60)); }
           this.fullStats.ms = Date.now() - tf;
+          this.fullStats.gapMs = gap;          /* 实际刷新间隔（完整读时会 > period） */
+          this.fullStats.period = this.period;  /* 配置的目标间隔 */
+        } else if (this.seq % 10 === 1) {
+          /* 全部符号都是「按需读」时（例如程序里只有一个 32KB 数组），
+             没有可扫的列表。仍每 ~5s 发一帧空数据，让界面的「最近更新」保持跳动，
+             否则用户会以为刷新卡死了。 */
+          this.broadcast({ t: 'full', seq: this.seq, ts: Date.now(), items: [], stats: this.fullStats });
         }
         if (this.seq % 5 === 1) {
           this.log('tx', `→ 09/03 ExecuteRead（8B：句柄 0x${c.readListHandle.toString(16).toUpperCase()}）`);
@@ -828,15 +871,25 @@ class Runner {
     });
   }
 
-  /* ── 全量扫描：遍历所有列表，仅发 ExecuteRead（8B，无配额限制） ── */
+  /* ── 全量扫描：遍历所有列表，仅发 ExecuteRead（8B，无配额限制） ──
+     ⚠ 耗时模型（这是「扫描耗时」的唯一来源，无法靠代码优化掉）：
+     PLC 把响应按 ≤448B 一块切分，且**每块都要单独 ACK**
+     （实测不可省：不回 ACK 会被 PLC 判通道错误 8400）。
+     所以本函数耗时 ≈ 总块数 × 单块往返，与「变量个数」关系不大：
+       · 230 个标量 → 46 个列表 × 每表 1 块 = 46 次往返（有线约 60~90ms）
+       · 1 个 ARRAY[0..7999] OF REAL → 32KB ÷ 448B ≈ 72 块 = 72 次往返
+     单块往返 0.5ms 时 72 块≈40ms；8ms（Wi-Fi / 跨网段）时≈580ms。
+     blocks 就是留给界面解释这个数字的。 */
   async scanFull(c) {
     this.fullStats.entries = 0;
     this.fullStats.bytes = 0;
+    this.fullStats.blocks = 0;
     const items = [];
     for (const t of this.fullTasks) {
       c.readListHandle = t.handle;
       const bufs = await c.executeRead();
       this.fullStats.bytes += (c.lastReadPayload || { length: 0 }).length;
+      this.fullStats.blocks += c.lastBlocks || 0;
       t.syms.forEach((sym, i) => {
         const raw = bufs[i] || null;
         /* 正在被分页查看的数组：留一份原始字节，翻页时本地解码，不再打扰 PLC */
@@ -860,7 +913,7 @@ class Runner {
        ① scanFull 上一轮为该符号留下的原始字节（每 500ms 自动更新，翻页零额外通讯）
        ② 缓存缺失/过期 → 从已登记的读取列表里取一次（不新建 PrepareRead）
      解码在服务端做（readBase 按元素基类型 + 步长），前端只拿 20 个字符串。 */
-  async arrayPage(key, page = 0, size = 20) {
+  async arrayPage(key, page = 0, size = 20, fresh = false) {
     const full = 'Application.' + String(key || '').replace(/^Application\./, '');
     const sym = SYMBOLS.find(s => s.full === full);
     if (!sym) throw new Error('符号不存在：' + key);
@@ -880,7 +933,10 @@ class Runner {
     /* 取原始字节：先看缓存（2s 内算新鲜），否则读一次 */
     let raw = null;
     const cached = this.arrayRaw[full];
-    if (cached && Date.now() - cached.ts < 2000) raw = cached.buf;
+    /* 按需符号（大数组）每次重读代价极大（32KB≈72 次往返），缓存留 30s；
+       周期扫描的符号 2s 一换，保证「值」是新的。 */
+    const ttl = sym.onDemand ? 30000 : 2000;
+    if (!fresh && cached && Date.now() - cached.ts < ttl) raw = cached.buf;
     if (!raw && this.state === 'online' && this.client) {
       raw = await this.q(async () => {
         const c = this.client;
@@ -1641,10 +1697,15 @@ const server = http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
     res.end(JSON.stringify({
       total: SYMBOLS.length, scalar: SCALARS.length, composite: COMPOSITES.length,
+      /* 当前生效的大符号阈值（前端/用例据此判定，不要写死 4096） */
+      bigSymBytes: BIG_SYM_BYTES,
       symbols: SYMBOLS.map(s => ({ gvl: s.gvl, name: s.name, type: s.type, bytes: s.bytes,
         full: s.full, access: s.access, comment: s.comment,
         /* struct=true：结构体符号（type 形如 T_XXX），前端渲染成「展开成员」入口 */
         struct: !s.elem && /^T_/.test(String(s.type || '')),
+        /* onDemand=true 只在显式开启 MYX_BIG_SYM_BYTES>0 时出现：
+           表示该符号不进周期扫描、点开时才按需读。默认配置（0）下恒为 false。 */
+        onDemand: !!s.onDemand,
         /* 数组：给前端展开元素用（lo..hi 下标范围 + 元素基类型 + 步长）
            elem.writable=false 表示元素是结构体 —— 前端再点展开走 /api/members */
         elem: s.elem ? { lo: s.elem.lo, hi: s.elem.hi, base: s.elem.base, size: s.elem.size,
@@ -1663,7 +1724,8 @@ const server = http.createServer((req, res) => {
     const key = String(qp.get('key') || '');
     const page = Number(qp.get('page') || 0);
     const size = Number(qp.get('size') || 20);
-    runner.arrayPage(key, page, size).then(d => {
+    const fresh = qp.get('fresh') === '1';        /* 界面「刷新」按钮：绕过缓存强制重读 */
+    runner.arrayPage(key, page, size, fresh).then(d => {
       res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
       res.end(JSON.stringify(d));
     }).catch(e => {

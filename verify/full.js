@@ -171,7 +171,8 @@ let arrLoading = false;
 let arrPaintAt = 0;          /* 上次刷新时刻（节流） */
 
 /* 打开弹窗并载入指定页 */
-async function openArrPage(full, page) {
+/* fresh=true 时绕过服务端缓存强制重读（大数组一次重读≈72 次往返，只给「刷新」按钮用） */
+async function openArrPage(full, page, fresh) {
   const sym = SYMS.find(s => s.full === full);
   if (!sym || !sym.elem) return;
   if (!arrView || arrView.full !== full) {
@@ -188,7 +189,8 @@ async function openArrPage(full, page) {
   }
   arrLoading = true;
   try {
-    const r = await fetch(`/api/arrayvals?key=${encodeURIComponent(full)}&page=${page}&size=${AP_SIZE}`);
+    const r = await fetch(`/api/arrayvals?key=${encodeURIComponent(full)}&page=${page}&size=${AP_SIZE}`
+      + (fresh ? "&fresh=1" : ""));
     const d = await r.json();
     if (!d.ok) throw new Error(d.error || '读取失败');
     arrView = Object.assign(arrView, d);
@@ -303,7 +305,7 @@ function refreshArrIfOpen() {
 $('aprev').onclick = () => gotoPage((arrView ? arrView.page : 0) - 1);
 $('anext').onclick = () => gotoPage((arrView ? arrView.page : 0) + 1);
 $('aclose').onclick = () => closeArrPage();
-$('arefresh').onclick = () => { if (arrView) openArrPage(arrView.full, arrView.page); };
+$('arefresh').onclick = () => { if (arrView) openArrPage(arrView.full, arrView.page, true); };
 $('amodal').addEventListener('click', (e) => { if (e.target === $('amodal')) closeArrPage(); });
 
 $('apage').onkeydown = (e) => {
@@ -407,7 +409,20 @@ function paint() {
   tb.querySelectorAll('td.v-val').forEach(td => {
     const f = td.dataset.v;
     const v = VALUES[f];
-    if (!v) return;
+    if (!v) {
+      /* 默认是完整读，所以走到这里几乎都是「PLC 上没有这个变量 / 类型不可读」。
+         唯一例外：管理员显式设了 MYX_BIG_SYM_BYTES>0 开启按需读，
+         那这类符号确实不参与轮询，必须说清楚是「刻意不扫」而不是刷新失效。 */
+      const s = SYMS.find(x => x.full === f);
+      if (s && s.onDemand && td.textContent === '--') {
+        td.textContent = '按需';
+        td.className = 'v-val od';
+        td.title = `该符号 ${s.bytes}B，已按 MYX_BIG_SYM_BYTES 配置排除在周期扫描之外\n`
+          + '（默认配置是完整读，不会出现此状态）\n'
+          + '点右侧「' + (s.elem && s.elem.writable ? '分页' : '展开') + '」时按需读一次';
+      }
+      return;
+    }
     const tr = td.closest('tr');
     if (tr) syncRowCtl(tr, v.disp);
     if (td.textContent === v.disp) return;
@@ -524,6 +539,30 @@ function renderStats(s) {
   $('stEntries').textContent = s.entries || '--';
   $('stBytes').textContent = s.bytes ? (s.bytes / 1024).toFixed(1) + ' KB' : '--';
   $('stMs').textContent = s.ms ? s.ms + ' ms' : '--';
+
+  /* 扫描耗时 = 块数 × 单块往返（PLC 强制逐块 ACK，无法省）。
+     这里只负责把「为什么是这个数」讲清楚，不改行为：
+       · 全部符号都参与轮询（默认完整读），所以数据量决定块数
+       · 单块往返由链路决定，换有线/关 VPN/关网卡节能才有效
+     若真实刷新间隔明显超过目标周期，说明「一轮读不完」，如实标黄而不是假装正常。 */
+  const per = (s.blocks && s.ms) ? s.ms / s.blocks : 0;
+  const slowLink = per > 3;
+  const lag = s.gapMs && s.period ? (s.gapMs > s.period * 2.2) : false;
+  if (s.blocks && s.ms) {
+    $('stMs').title = `共 ${s.blocks} 块 · 每块 ${per.toFixed(2)}ms\n`
+      + '（PLC 按 448B/块 分包，每块都要单独 ACK；耗时 ≈ 块数 × 单块往返）'
+      + (s.onDemand
+          ? `\n已启用按需读：${s.onDemand} 个符号（${(s.onDemandBytes / 1024).toFixed(1)}KB）不参与轮询`
+          : '\n完整读：全部符号每轮都刷新（这是默认行为）')
+      + (s.gapMs ? `\n实际刷新间隔 ${s.gapMs}ms（目标 ${s.period}ms）` : '')
+      + (slowLink ? '\n\n单块往返偏高（' + per.toFixed(1) + 'ms）：多为 Wi-Fi / 跨网段 / 网卡节能。'
+        + '\n换网线直连、设 MYX_SRC 固定有线、关 VPN/代理，可降到 1ms 以下。' : '')
+      + (lag && !slowLink ? '\n\n实际间隔明显大于目标周期：一轮读不完与周期的差额，属正常（不会丢数据）。' : '');
+    $('stMs').style.color = (slowLink || lag) ? '#FFB020' : '';
+  } else {
+    $('stMs').title = '全量扫描一轮耗时';
+    $('stMs').style.color = '';
+  }
 }
 
 /* 刷新活性指示：每收到一帧全量数据就记时刻。

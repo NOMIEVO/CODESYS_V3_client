@@ -162,6 +162,13 @@ body.full-page {
 .ftable .v-val.f { color: var(--ink-3); }
 .ftable .v-val.arr { color: var(--violet); }
 .ftable .v-val.blob { color: var(--ink-3); }
+/* 大符号「按需」：虚线下划线表示需点开才有值，颜色低调但不至于被当成没读到 */
+.ftable .v-val.od {
+  color: var(--ink-3);
+  font-style: italic;
+  border-bottom: 1px dashed currentColor;
+  cursor: help;
+}
 .ftable .v-size { font: 400 10.5px/1.35 var(--mono); color: var(--ink-3); text-align: right; }
 
 @keyframes fl { 0% { background: rgba(43,224,176,.20); } 100% { background: transparent; } }
