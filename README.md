@@ -235,6 +235,9 @@ CODESYS_V3_client/
 │   ├── codesys_symconfig.py   ← XML → 布局表 + 审计报告
 │   ├── make-demo-xml.py       ← 生成合成示例工程（脱敏用）
 │   ├── probe-latency.js       ← 归因探针：扫描耗时是「块数多」还是「单块往返慢」
+│   ├── probe-baseline.js      ← 量出「每次请求」与「每块」两个成本系数（两台设备可比）
+│   ├── probe-roundtrip.js     ← 拆开网络 / Runtime / 每块，定位瓶颈层
+│   └── probe-blockgap.js      ← 逐块到达间隔直方图（看是否被量化到某个节拍）
 │   └── points_template.csv    ← 点表模板（批量选点用）
 │
 ├── tests/                     ← 自检用例（见第 7 节）
@@ -522,6 +525,11 @@ PLC 把响应按 ≤448B 一块切分，且**每个数据块都必须单独 ACK*
 ```bash
 node tools/probe-latency.js              # 自动挑最大的符号
 node tools/probe-latency.js 192.168.1.92 "GVL.CommValue"
+
+# 更细的三件套（换设备/换机器时做对比用）
+node tools/probe-baseline.js             # 固定开销 requestMs + 每块开销 blockMs + 全量一轮
+node tools/probe-roundtrip.js            # TCP连接 vs GetRoot vs 每块，判定瓶颈层
+node tools/probe-blockgap.js             # 逐块间隔直方图（量化 = Runtime 节拍）
 ```
 
 它会给出「单块往返基准」和「大块每块耗时」，两者一比就知道是链路问题还是块数问题。
@@ -530,6 +538,40 @@ node tools/probe-latency.js 192.168.1.92 "GVL.CommValue"
 > 不会为了提速把任何变量排除在刷新之外。`MYX_BIG_SYM_BYTES` 默认为 `0`；
 > 只有你显式设成非 0 值时才会把超过该字节数的复合符号改成「点开时按需读」
 > （代价是那些行不再自动刷新）。这是唯一会牺牲刷新完整性的开关，正常情况下不要动它。
+
+**Q：同一套程序，接硬件 PLC 很快，接 Windows 工控机（CODESYS Control RTE）慢十几倍**
+A：这是 Runtime 侧的成本差异，不是客户端问题。协议里每个动作都要等一次完整往返：
+
+```
+一轮扫描的操作数 = 请求数（每个读取列表 1 次） + 响应块数（每 448B 一块，每块都要 ACK）
+一轮耗时           = 操作数 × 单次操作耗时
+```
+
+现场实测同一份代码：
+
+| 设备 | 单次操作 | 说明 |
+|---|---|---|
+| 嵌入式硬件 PLC | ≈ 0.4 ms | 一次往返几乎等于网络 RTT |
+| Win10 + Control RTE | ≈ 9 ms | 高度量化（±0.5ms），像 100Hz 调度节拍 |
+
+判据是「间隔是否量化」：连续读一个大数组，抓逐块到达间隔，
+若 90% 样本落在同一个窄区间（如 8.0~9.3ms），就是 PLC 侧节拍；
+若间隔忽大忽小、偶发几十毫秒尖峰，才是网络/网卡/杀软问题。
+
+三步定位（都只读、不写 PLC）：
+
+```bash
+node tools/probe-baseline.js    <ip> <app>   # 得到 requestMs / blockMs 两个系数
+node tools/probe-roundtrip.js   <ip> <app>   # TCP连接 vs 协议往返 vs 每块
+node tools/probe-blockgap.js    <ip> <app> <符号>  # 逐块间隔直方图
+```
+
+处置优先级：① 符号配置里只勾 HMI 真正要用的变量（数组别整条勾）；
+② 工控机侧查任务/Runtime 周期（块间隔会跟着变，这是唯一确证方法）；
+③ 关网卡中断节流与节能、关安全软件的网络过滤、电源计划设高性能。
+
+**客户端不做任何隐藏优化**：完整读的耗时就是「操作数 × 单次操作」，
+换设备只能靠上面三条，代码改不动物理成本。
 
 **Q：导入 XML 报「gen_tags.py 退出码 9009」，但我这边同一份 XML 是好的**
 A：与 XML 无关，是**那台机器的 `python` 命令跑不起来**。`9009` 是 Windows 的
