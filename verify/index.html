@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MYX 协议验证台 · CODESYS V3</title>
+<link rel="stylesheet" href="verify.css">
+</head>
+<body>
+
+<!-- ══════════ 顶栏 ══════════ -->
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark">V3</div>
+    <div class="brand-title">协议验证台</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="endpoint" id="endpointBox" title="点击配置 PLC 地址与端口">
+    <span class="dot" id="epDot"></span>
+    <b id="epHost">192.0.2.10</b><span id="epPort">:11740</span>
+    <span class="ep-cfg" aria-hidden="true">⚙</span>
+  </div>
+
+  <div class="spacer"></div>
+
+  <div class="ctrl">
+    <span class="ctrl-label">周期</span>
+    <select id="periodSel">
+      <option value="200">200 ms</option>
+      <option value="500" selected>500 ms</option>
+      <option value="1000">1 s</option>
+      <option value="2000">2 s</option>
+    </select>
+  </div>
+
+  <div class="status" id="status"><span class="pip"></span><span id="statusText">未连接</span></div>
+  <span class="last-err" id="lastErr" hidden></span>
+
+  <button class="btn ghost" id="btnFullLink" onclick="location.href='/full'" title="全量 XML 符号（230 个）分批轮询浏览器">全量变量</button>
+  <button class="btn primary" id="btnConnect">连接</button>
+  <button class="btn ghost" id="btnReset">清统计</button>
+</header>
+
+<!-- ══════════ 主区 ══════════ -->
+<main>
+
+  <!-- ── 左：握手时间线 ── -->
+  <aside class="col">
+    <div class="panel-head">
+      <h2>握手链路</h2>
+      <span class="count" id="hsCount">0/7</span>
+    </div>
+    <div class="handshake" id="handshake"></div>
+  </aside>
+
+  <!-- ── 中：XML 导入 + 程序切换 ── -->
+  <section class="col">
+    <div class="panel-head">
+      <h2>XML 导入 · 程序</h2>
+      <span class="count" id="impMeta">—</span>
+    </div>
+    <div class="values import-panel" id="values">
+      <div class="drop" id="drop" title="把 CODESYS 导出的 *.Device.Application.xml 拖到这里">
+        <div class="drop-icon">⇪</div>
+        <div class="drop-t1">拖入 .Device.Application.xml</div>
+        <div class="drop-t2">或点击选择文件 · 自动生成数据并切换程序</div>
+        <input type="file" id="fileInput" accept=".xml" hidden>
+      </div>
+      <div class="imp-status" id="impStatus" hidden></div>
+      <div class="apps-title">已导入程序</div>
+      <div class="app-list" id="appList"></div>
+    </div>
+  </section>
+
+  <!-- ── 右：统计 + 写入 ── -->
+  <aside class="col">
+    <div class="side-section">
+      <div class="panel-head">
+        <h2>链路统计</h2>
+        <span class="count" id="txrx">TX 0 / RX 0</span>
+      </div>
+      <div class="side-body">
+        <div class="kpi-row">
+          <div class="kpi">
+            <div class="kpi-k">RTT</div>
+            <div class="kpi-v" id="kpiRtt">—<span class="u">ms</span></div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-k">读成功率 <span style="font:400 9px/1 var(--mono);color:var(--ink-3)">近 80 次</span></div>
+            <div class="kpi-v good" id="kpiRate">—</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-k">读帧数</div>
+            <div class="kpi-v" id="kpiReads">0</div>
+          </div>
+        </div>
+        <div class="rtt-wrap">
+          <canvas class="rtt-canvas" id="rttCanvas" width="600" height="140"></canvas>
+          <div class="rtt-legend">
+            <span>最近 80 次 <b>ExecuteRead</b></span>
+            <span>最小 <b id="rttMin">—</b> · 平均 <b id="rttAvg">—</b> · 峰值 <b id="rttMax">—</b></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-section">
+      <div class="panel-head">
+        <h2>写入验证 · 全量</h2>
+        <span class="count">09 / 04</span>
+      </div>
+      <div class="side-body">
+        <div class="w-head">
+          <span class="warn-chip" title="写权限以 XML access 为唯一准则：rw 标量均可写（点表内 + 全量符号表）">全量 rw</span>
+          <span style="font:400 10px/1 var(--mono);color:var(--ink-3)">写入即生效 · 不自动还原</span>
+        </div>
+        <div class="w-row">
+          <div class="w-target" id="wTarget" title="当前写入目标">（未选择）</div>
+          <button class="btn" id="btnPickVar">选择变量…</button>
+        </div>
+        <div class="w-current">
+          <span>当前读值</span><b id="writeCur">—</b>
+        </div>
+        <div class="w-row" id="numRow">
+          <input type="number" id="writeVal" step="any" placeholder="写入值" style="flex:1;min-width:0;">
+          <button class="btn" id="btnFill" title="填入当前值 +1，便于快速构造写入值">当前+1</button>
+        </div>
+        <div class="w-row bool-row" id="boolRow" hidden>
+          <button class="bool-opt" id="boolOn" data-b="1"><i></i>TRUE · 置位</button>
+          <button class="bool-opt" id="boolOff" data-b="0"><i></i>FALSE · 复位</button>
+        </div>
+        <div class="w-hint" id="wHint" hidden></div>
+        <div class="w-btns">
+          <button class="btn" id="btnNoop">回写当前值</button>
+          <button class="btn danger" id="btnSet">写入值</button>
+        </div>
+        <div class="w-recall" id="wRecall" hidden>
+          <span>上次写入前 <b id="wPrev">—</b></span>
+          <button class="btn sm ghost" id="btnRecall">恢复原值</button>
+        </div>
+        <div class="watch-block">
+          <div class="watch-head">
+            <span>监控变量</span>
+            <span class="count" id="watchCount">0</span>
+            <div class="spacer"></div>
+            <button class="btn sm ghost" id="btnWatchClear">清空</button>
+          </div>
+          <div class="watch-list" id="watchList">
+            <div class="app-empty">在「选择变量」弹窗里点 ＋监控 添加</div>
+          </div>
+        </div>
+        <div class="w-log" id="wLog"></div>
+      </div>
+    </div>
+  </aside>
+
+</main>
+
+<!-- ══════════ PLC 配置弹窗 ══════════ -->
+<div class="modal-mask" id="cfgMask" hidden>
+  <div class="modal modal-sm">
+    <div class="modal-head">
+      <b>PLC 配置</b>
+      <div class="spacer"></div>
+      <button class="btn sm ghost" id="cfgClose" title="关闭">✕</button>
+    </div>
+    <div class="modal-sub">修改后立即断开旧连接并用新地址重新握手（保存到 plc-config.json，重启仍生效）</div>
+    <div class="cfg-body">
+      <label class="cfg-row">
+        <span class="cfg-k">IP 地址</span>
+        <input type="text" id="cfgHost" placeholder="192.0.2.10" autocomplete="off" spellcheck="false">
+      </label>
+      <label class="cfg-row">
+        <span class="cfg-k">端口</span>
+        <input type="number" id="cfgPort" min="1" max="65535" placeholder="11740">
+      </label>
+      <div class="cfg-note" id="cfgNote"></div>
+      <div class="cfg-btns">
+        <button class="btn ghost" id="cfgDefault">恢复默认</button>
+        <div class="spacer"></div>
+        <button class="btn" id="cfgCancel">取消</button>
+        <button class="btn primary" id="cfgSave">保存并重连</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ 变量选择弹窗 ══════════ --><div class="modal-mask" id="pickMask" hidden>
+  <div class="modal">
+    <div class="modal-head">
+      <b>选择变量</b>
+      <input type="search" id="pickSearch" placeholder="搜索 名称 / 类型 / 注释…" autocomplete="off">
+      <button class="btn sm ghost" id="pickClose" title="关闭">✕</button>
+    </div>
+    <div class="modal-sub" id="pickMeta"></div>
+    <div class="modal-list" id="pickList"></div>
+  </div>
+</div>
+
+<!-- ══════════ 底部报文流水 ══════════ -->
+<footer class="console">
+  <div class="console-head">
+    <h2>报文流水</h2>
+    <span class="hint">→ 发送　← 接收　✓ 成功　✗ 错误</span>
+    <div class="spacer"></div>
+    <button class="btn sm ghost" id="btnClearLog">清空</button>
+  </div>
+  <div class="console-body" id="consoleBody"></div>
+</footer>
+
+<script src="verify.js"></script>
+</body>
+</html>

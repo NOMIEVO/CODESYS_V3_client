@@ -1,0 +1,269 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Symbolconfiguration xmlns="http://www.3s-software.com/schemas/Symbolconfiguration.xsd">
+  <Header>
+    <Version>3.5.14.0</Version>
+    <SymbolConfigObject version="4.7.0.0" runtimeid="3.5.17.40" libversion="4.6.0.0" compiler="3.5.22.0" lmm="3.5.22.10" profile="CODESYS V3.5 SP22 Patch 1+" settings="XmlIncludeComments, LayoutCalculator=OptimizedClientSideLayoutCalculator" />
+    <ProjectInfo name="DEMO_MACHINE" devicename="Device" appname="Application" />
+  </Header>
+  <TypeList>
+    <TypeSimple name="T_BOOL" size="1" swapsize="0" typeclass="Bool" iecname="BOOL" />
+    <TypeSimple name="T_SINT" size="1" swapsize="1" typeclass="SInt" iecname="SINT" />
+    <TypeSimple name="T_USINT" size="1" swapsize="1" typeclass="USInt" iecname="USINT" />
+    <TypeSimple name="T_BYTE" size="1" swapsize="1" typeclass="Byte" iecname="BYTE" />
+    <TypeSimple name="T_INT" size="2" swapsize="2" typeclass="Int" iecname="INT" />
+    <TypeSimple name="T_UINT" size="2" swapsize="2" typeclass="UInt" iecname="UINT" />
+    <TypeSimple name="T_WORD" size="2" swapsize="2" typeclass="Word" iecname="WORD" />
+    <TypeSimple name="T_DINT" size="4" swapsize="4" typeclass="DInt" iecname="DINT" />
+    <TypeSimple name="T_UDINT" size="4" swapsize="4" typeclass="UDInt" iecname="UDINT" />
+    <TypeSimple name="T_DWORD" size="4" swapsize="4" typeclass="DWord" iecname="DWORD" />
+    <TypeSimple name="T_REAL" size="4" swapsize="4" typeclass="Real" iecname="REAL" />
+    <TypeSimple name="T_LREAL" size="8" swapsize="8" typeclass="LReal" iecname="LREAL" />
+    <TypeSimple name="T_TIME" size="4" swapsize="4" typeclass="Time" iecname="TIME" />
+    <TypeSimple name="T_STRING" size="81" swapsize="0" typeclass="String" iecname="STRING" />
+    <TypeUserDef name="T_E_MODE" size="2" nativesize="2" swapsize="2" typeclass="Enum" iecname="E_MODE" basetype="T_INT">
+      <UserDefElement type="T_E_MODE" iecname="IDLE" enumvalue="0" />
+      <UserDefElement type="T_E_MODE" iecname="MANUAL" enumvalue="1" />
+      <UserDefElement type="T_E_MODE" iecname="AUTO" enumvalue="2" />
+      <UserDefElement type="T_E_MODE" iecname="FAULT" enumvalue="3" />
+      <UserDefElement type="T_E_MODE" iecname="MAINT" enumvalue="4" />
+    </TypeUserDef>
+    <TypeUserDef name="T_E_PRODUCT_RESULT" size="2" nativesize="2" swapsize="2" typeclass="Enum" iecname="E_PRODUCT_RESULT" basetype="T_INT">
+      <UserDefElement type="T_E_PRODUCT_RESULT" iecname="NONE" enumvalue="0" />
+      <UserDefElement type="T_E_PRODUCT_RESULT" iecname="OK" enumvalue="1" />
+      <UserDefElement type="T_E_PRODUCT_RESULT" iecname="NG" enumvalue="2" />
+    </TypeUserDef>
+    <TypeArray name="T_ARRAY__0__2__OF_BOOL" size="3" nativesize="3" typeclass="Array" iecname="ARRAY [0..2] OF BOOL" basetype="T_BOOL">
+      <ArrayDim minrange="0" maxrange="2" />
+    </TypeArray>
+    <TypeArray name="T_ARRAY__0__20__OF_INT" size="42" nativesize="42" typeclass="Array" iecname="ARRAY [0..20] OF INT" basetype="T_INT">
+      <ArrayDim minrange="0" maxrange="20" />
+    </TypeArray>
+    <TypeArray name="T_ARRAY__0__100__OF_INT" size="202" nativesize="202" typeclass="Array" iecname="ARRAY [0..100] OF INT" basetype="T_INT">
+      <ArrayDim minrange="0" maxrange="100" />
+    </TypeArray>
+    <TypeArray name="T_ARRAY__0__100__OF_BOOL" size="101" nativesize="101" typeclass="Array" iecname="ARRAY [0..100] OF BOOL" basetype="T_BOOL">
+      <ArrayDim minrange="0" maxrange="100" />
+    </TypeArray>
+    <TypeArray name="T_ARRAY__0__9__OF_REAL" size="40" nativesize="40" typeclass="Array" iecname="ARRAY [0..9] OF REAL" basetype="T_REAL">
+      <ArrayDim minrange="0" maxrange="9" />
+    </TypeArray>
+    <TypeArray name="T_ARRAY__1__6__OF_DINT" size="24" nativesize="24" typeclass="Array" iecname="ARRAY [1..6] OF DINT" basetype="T_DINT">
+      <ArrayDim minrange="1" maxrange="6" />
+    </TypeArray>
+    <TypeArray name="T_ARRAY__0__7__OF_T_ST_AXIS_CONTROL" size="352" nativesize="352" typeclass="Array" iecname="ARRAY [0..7] OF ST_AXIS_CONTROL" basetype="T_ST_AXIS_CONTROL">
+      <ArrayDim minrange="0" maxrange="7" />
+    </TypeArray>
+    <TypeArray name="T_ARRAY__0__7__OF_T_ST_AXIS_PARAM" size="256" nativesize="256" typeclass="Array" iecname="ARRAY [0..7] OF ST_AXIS_PARAM" basetype="T_ST_AXIS_PARAM">
+      <ArrayDim minrange="0" maxrange="7" />
+    </TypeArray>
+    <TypeArray name="T_ARRAY__1__6__OF_T_ST_CELL" size="6" nativesize="48" typeclass="Array" iecname="ARRAY [1..6] OF ST_CELL" basetype="T_ST_CELL">
+      <ArrayDim minrange="1" maxrange="6" />
+    </TypeArray>
+    <TypeUserDef name="T_ST_AXIS_STATE" size="16" nativesize="16" typeclass="Userdef" pouclass="STRUCTURE" iecname="ST_AXIS_STATE">
+      <UserDefElement iecname="bValid" type="T_BOOL" byteoffset="0" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="bBusy" type="T_BOOL" byteoffset="1" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="bError" type="T_BOOL" byteoffset="2" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="diErrorID" type="T_INT" byteoffset="4" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="bDisabled" type="T_BOOL" byteoffset="6" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="bStopped" type="T_BOOL" byteoffset="7" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="bMoving" type="T_BOOL" byteoffset="8" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="bHomed" type="T_BOOL" byteoffset="9" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="tElapsed" type="T_TIME" byteoffset="12" vartype="VAR" access="ReadWrite" />
+    </TypeUserDef>
+    <TypeUserDef name="T_ST_AXIS_CONTROL" size="44" nativesize="44" typeclass="Userdef" pouclass="STRUCTURE" iecname="ST_AXIS_CONTROL">
+      <UserDefElement iecname="fSetPosition" type="T_REAL" byteoffset="0" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="fActPosition" type="T_REAL" byteoffset="4" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="tState" type="T_ST_AXIS_STATE" byteoffset="8" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="bEnable" type="T_BOOL" byteoffset="24" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="bEnabled" type="T_BOOL" byteoffset="25" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="bLimitPos" type="T_BOOL" byteoffset="26" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="bLimitNeg" type="T_BOOL" byteoffset="27" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="bJogFwd" type="T_BOOL" byteoffset="28" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="bJogBwd" type="T_BOOL" byteoffset="29" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="aAbsSel" type="T_ARRAY__0__2__OF_BOOL" byteoffset="30" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="fTargetVel" type="T_REAL" byteoffset="36" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="diErrorCode" type="T_DINT" byteoffset="40" vartype="VAR" access="ReadWrite" />
+    </TypeUserDef>
+    <TypeUserDef name="T_ST_AXIS_PARAM" size="32" nativesize="32" typeclass="Userdef" pouclass="STRUCTURE" iecname="ST_AXIS_PARAM">
+      <UserDefElement iecname="fUpperLimit" type="T_REAL" byteoffset="0" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="fLowerLimit" type="T_REAL" byteoffset="4" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="fAcc" type="T_REAL" byteoffset="8" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="fDec" type="T_REAL" byteoffset="12" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="fJerk" type="T_REAL" byteoffset="16" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="fJogVel" type="T_REAL" byteoffset="20" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="diHomeOffset" type="T_DINT" byteoffset="24" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="bInvertDir" type="T_BOOL" byteoffset="28" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="bSoftLimitEn" type="T_BOOL" byteoffset="29" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="iMode" type="T_INT" byteoffset="30" vartype="VAR" access="ReadWrite" />
+    </TypeUserDef>
+    <TypeUserDef name="T_U_CELL_RESULT" size="0" nativesize="4" typeclass="Userdef" pouclass="STRUCTURE" iecname="U_CELL_RESULT">
+      <UserDefElement iecname="eResult" type="T_E_PRODUCT_RESULT" byteoffset="0" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="di" type="T_DINT" byteoffset="0" vartype="VAR" access="ReadWrite" />
+    </TypeUserDef>
+    <TypeUserDef name="T_ST_CELL" size="1" nativesize="8" typeclass="Userdef" pouclass="STRUCTURE" iecname="ST_CELL">
+      <UserDefElement iecname="uResult" type="T_U_CELL_RESULT" byteoffset="0" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="bUsed" type="T_BOOL" byteoffset="0" vartype="VAR" access="ReadWrite" />
+    </TypeUserDef>
+    <TypeUserDef name="T_ST_PANEL_IN" size="12" nativesize="12" typeclass="Userdef" pouclass="STRUCTURE" iecname="ST_PANEL_IN">
+      <UserDefElement iecname="bStart" type="T_BOOL" byteoffset="0" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="bStop" type="T_BOOL" byteoffset="1" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="bReset" type="T_BOOL" byteoffset="2" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="bEStop" type="T_BOOL" byteoffset="3" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="iModeSel" type="T_INT" byteoffset="4" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="diCoded" type="T_DINT" byteoffset="8" vartype="VAR" access="ReadWrite" />
+    </TypeUserDef>
+    <TypeUserDef name="T_ST_PANEL_OUT" size="8" nativesize="8" typeclass="Userdef" pouclass="STRUCTURE" iecname="ST_PANEL_OUT">
+      <UserDefElement iecname="bRunning" type="T_BOOL" byteoffset="0" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="bAlarm" type="T_BOOL" byteoffset="1" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="bReady" type="T_BOOL" byteoffset="2" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="bFault" type="T_BOOL" byteoffset="3" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="diCode" type="T_DINT" byteoffset="4" vartype="VAR" access="ReadWrite" />
+    </TypeUserDef>
+  </TypeList>
+  <NodeList>
+    <Node name="Application">
+      <Node name="GVL_MAIN">
+        <Node name="diTotalCount" type="T_DINT" access="ReadWrite">
+          <Comment> 总计数</Comment>
+        </Node>
+        <Node name="diPartCount" type="T_DINT" access="ReadWrite">
+          <Comment> 循环计数</Comment>
+        </Node>
+        <Node name="bResetCount" type="T_BOOL" access="ReadWrite">
+          <Comment> 计数清零</Comment>
+        </Node>
+        <Node name="bAutoMode" type="T_BOOL" access="ReadWrite">
+          <Comment> 自动模式</Comment>
+        </Node>
+        <Node name="bRunning" type="T_BOOL" access="ReadWrite">
+          <Comment> 运行中</Comment>
+        </Node>
+        <Node name="lrSpeed" type="T_LREAL" access="ReadWrite">
+          <Comment> 实际速度</Comment>
+        </Node>
+        <Node name="bEStop" type="T_BOOL" access="ReadWrite">
+          <Comment> 急停回路</Comment>
+        </Node>
+        <Node name="bEtherCAT" type="T_BOOL" access="ReadWrite">
+          <Comment> 总线就绪</Comment>
+        </Node>
+        <Node name="bIoOk" type="T_BOOL" access="ReadWrite">
+          <Comment> IO 模块就绪</Comment>
+        </Node>
+        <Node name="eMode" type="T_E_MODE" access="ReadWrite">
+          <Comment> 控制模式</Comment>
+        </Node>
+        <Node name="aiStatus" type="T_ARRAY__0__20__OF_INT" access="ReadWrite">
+          <Comment> 流程字</Comment>
+        </Node>
+        <Node name="aAlarmFlag" type="T_ARRAY__0__100__OF_BOOL" access="ReadWrite">
+          <Comment> 报警状态</Comment>
+        </Node>
+        <Node name="aAlarmCode" type="T_ARRAY__0__100__OF_INT" access="ReadWrite">
+          <Comment> 报警代码</Comment>
+        </Node>
+        <Node name="aInfoFlag" type="T_ARRAY__0__100__OF_BOOL" access="ReadWrite">
+          <Comment> 提示状态</Comment>
+        </Node>
+        <Node name="aInfoCode" type="T_ARRAY__0__100__OF_INT" access="ReadWrite">
+          <Comment> 提示代码</Comment>
+        </Node>
+        <Node name="aErrFlag" type="T_ARRAY__0__100__OF_BOOL" access="ReadWrite">
+          <Comment> 故障状态</Comment>
+        </Node>
+        <Node name="aErrCode" type="T_ARRAY__0__100__OF_INT" access="ReadWrite">
+          <Comment> 故障代码</Comment>
+        </Node>
+        <Node name="aStationNo" type="T_ARRAY__1__6__OF_DINT" access="ReadWrite">
+          <Comment> 工位号表</Comment>
+        </Node>
+        <Node name="aAngleMax" type="T_ARRAY__1__6__OF_DINT" access="ReadWrite">
+          <Comment> 角度上限表</Comment>
+        </Node>
+        <Node name="aAngleMin" type="T_ARRAY__1__6__OF_DINT" access="ReadWrite">
+          <Comment> 角度下限表</Comment>
+        </Node>
+        <Node name="aAxisVel" type="T_ARRAY__0__9__OF_REAL" access="ReadWrite">
+          <Comment> 轴速度表</Comment>
+        </Node>
+      </Node>
+      <Node name="GVL_AXIS">
+        <Node name="aAxisCtl" type="T_ARRAY__0__7__OF_T_ST_AXIS_CONTROL" access="ReadWrite">
+          <Comment> 轴控制数据</Comment>
+        </Node>
+        <Node name="aAxisParam" type="T_ARRAY__0__7__OF_T_ST_AXIS_PARAM" access="ReadWrite">
+          <Comment> 轴参数</Comment>
+        </Node>
+      </Node>
+      <Node name="GVL_STATION">
+        <Node name="rActual" type="T_REAL" access="ReadWrite">
+          <Comment> 当前实测值</Comment>
+        </Node>
+        <Node name="rTarget" type="T_REAL" access="ReadWrite">
+          <Comment> 目标值</Comment>
+        </Node>
+        <Node name="rUpperLimit" type="T_REAL" access="ReadWrite">
+          <Comment> 上限设定</Comment>
+        </Node>
+        <Node name="rLowerLimit" type="T_REAL" access="ReadWrite">
+          <Comment> 下限设定</Comment>
+        </Node>
+        <Node name="rReference" type="T_REAL" access="ReadWrite">
+          <Comment> 基准值</Comment>
+        </Node>
+        <Node name="bVisionEnable" type="T_BOOL" access="ReadWrite">
+          <Comment> 视觉启用</Comment>
+        </Node>
+        <Node name="diOkCount" type="T_DINT" access="ReadWrite">
+          <Comment> 合格数</Comment>
+        </Node>
+        <Node name="diNgCount" type="T_DINT" access="ReadWrite">
+          <Comment> 不良数</Comment>
+        </Node>
+        <Node name="diTarget" type="T_DINT" access="ReadWrite">
+          <Comment> 设定产量</Comment>
+        </Node>
+        <Node name="diStationNo" type="T_DINT" access="ReadWrite">
+          <Comment> 当前工位号</Comment>
+        </Node>
+        <Node name="diCycleCount" type="T_DINT" access="ReadWrite">
+          <Comment> 循环计数</Comment>
+        </Node>
+        <Node name="aCell" type="T_ARRAY__1__6__OF_T_ST_CELL" access="ReadWrite">
+          <Comment> 工位数据（联合体）</Comment>
+        </Node>
+      </Node>
+      <Node name="GVL_IO">
+        <Node name="bSafetyDoor" type="T_BOOL" access="ReadWrite">
+          <Comment> 安全门到位</Comment>
+        </Node>
+        <Node name="bSafetyOk" type="T_BOOL" access="ReadWrite">
+          <Comment> 安全允许</Comment>
+        </Node>
+        <Node name="bAirPressure" type="T_BOOL" access="ReadWrite">
+          <Comment> 气压正常</Comment>
+        </Node>
+        <Node name="bFeedMaterial" type="T_BOOL" access="ReadWrite">
+          <Comment> 上料检测</Comment>
+        </Node>
+        <Node name="bPartDetect" type="T_BOOL" access="ReadWrite">
+          <Comment> 物料检测</Comment>
+        </Node>
+        <Node name="diPowerOnCount" type="T_DINT" access="ReadWrite">
+          <Comment> 开机次数</Comment>
+        </Node>
+        <Node name="diStopReason" type="T_INT" access="ReadWrite">
+          <Comment> 停机原因</Comment>
+        </Node>
+      </Node>
+      <Node name="GVL_PANEL">
+        <Node name="stInput" type="T_ST_PANEL_IN" access="ReadWrite">
+          <Comment> 面板输入</Comment>
+        </Node>
+        <Node name="stOutput" type="T_ST_PANEL_OUT" access="ReadWrite">
+          <Comment> 面板输出</Comment>
+        </Node>
+      </Node>
+    </Node>
+  </NodeList>
+</Symbolconfiguration>

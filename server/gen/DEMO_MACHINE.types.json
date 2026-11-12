@@ -1,0 +1,508 @@
+{
+ "schema": "gen-types/1",
+ "app": "DEMO_MACHINE",
+ "generatedFrom": "E:\\Workbuddy\\HMI_CONFIT\\CODESYS_V3_client\\example\\DEMO_MACHINE.Device.Application.xml",
+ "note": "TypeList 原样搬运：结构体成员（iecname/byteoffset/access）与数组维度（minrange/maxrange/basetype）。成员路径合成与钻取读取的依据。",
+ "types": {
+  "T_BOOL": {
+   "kind": "TypeSimple",
+   "iec": "BOOL",
+   "size": 1
+  },
+  "T_SINT": {
+   "kind": "TypeSimple",
+   "iec": "SINT",
+   "size": 1
+  },
+  "T_USINT": {
+   "kind": "TypeSimple",
+   "iec": "USINT",
+   "size": 1
+  },
+  "T_BYTE": {
+   "kind": "TypeSimple",
+   "iec": "BYTE",
+   "size": 1
+  },
+  "T_INT": {
+   "kind": "TypeSimple",
+   "iec": "INT",
+   "size": 2
+  },
+  "T_UINT": {
+   "kind": "TypeSimple",
+   "iec": "UINT",
+   "size": 2
+  },
+  "T_WORD": {
+   "kind": "TypeSimple",
+   "iec": "WORD",
+   "size": 2
+  },
+  "T_DINT": {
+   "kind": "TypeSimple",
+   "iec": "DINT",
+   "size": 4
+  },
+  "T_UDINT": {
+   "kind": "TypeSimple",
+   "iec": "UDINT",
+   "size": 4
+  },
+  "T_DWORD": {
+   "kind": "TypeSimple",
+   "iec": "DWORD",
+   "size": 4
+  },
+  "T_REAL": {
+   "kind": "TypeSimple",
+   "iec": "REAL",
+   "size": 4
+  },
+  "T_LREAL": {
+   "kind": "TypeSimple",
+   "iec": "LREAL",
+   "size": 8
+  },
+  "T_TIME": {
+   "kind": "TypeSimple",
+   "iec": "TIME",
+   "size": 4
+  },
+  "T_STRING": {
+   "kind": "TypeSimple",
+   "iec": "STRING",
+   "size": 81
+  },
+  "T_E_MODE": {
+   "kind": "TypeUserDef",
+   "iec": "E_MODE",
+   "size": 2,
+   "basetype": "T_INT",
+   "members": [],
+   "enums": {
+    "IDLE": 0,
+    "MANUAL": 1,
+    "AUTO": 2,
+    "FAULT": 3,
+    "MAINT": 4
+   }
+  },
+  "T_E_PRODUCT_RESULT": {
+   "kind": "TypeUserDef",
+   "iec": "E_PRODUCT_RESULT",
+   "size": 2,
+   "basetype": "T_INT",
+   "members": [],
+   "enums": {
+    "NONE": 0,
+    "OK": 1,
+    "NG": 2
+   }
+  },
+  "T_ARRAY__0__2__OF_BOOL": {
+   "kind": "TypeArray",
+   "iec": "ARRAY [0..2] OF BOOL",
+   "size": 3,
+   "lo": 0,
+   "hi": 2,
+   "basetype": "T_BOOL"
+  },
+  "T_ARRAY__0__20__OF_INT": {
+   "kind": "TypeArray",
+   "iec": "ARRAY [0..20] OF INT",
+   "size": 42,
+   "lo": 0,
+   "hi": 20,
+   "basetype": "T_INT"
+  },
+  "T_ARRAY__0__100__OF_INT": {
+   "kind": "TypeArray",
+   "iec": "ARRAY [0..100] OF INT",
+   "size": 202,
+   "lo": 0,
+   "hi": 100,
+   "basetype": "T_INT"
+  },
+  "T_ARRAY__0__100__OF_BOOL": {
+   "kind": "TypeArray",
+   "iec": "ARRAY [0..100] OF BOOL",
+   "size": 101,
+   "lo": 0,
+   "hi": 100,
+   "basetype": "T_BOOL"
+  },
+  "T_ARRAY__0__9__OF_REAL": {
+   "kind": "TypeArray",
+   "iec": "ARRAY [0..9] OF REAL",
+   "size": 40,
+   "lo": 0,
+   "hi": 9,
+   "basetype": "T_REAL"
+  },
+  "T_ARRAY__1__6__OF_DINT": {
+   "kind": "TypeArray",
+   "iec": "ARRAY [1..6] OF DINT",
+   "size": 24,
+   "lo": 1,
+   "hi": 6,
+   "basetype": "T_DINT"
+  },
+  "T_ARRAY__0__7__OF_T_ST_AXIS_CONTROL": {
+   "kind": "TypeArray",
+   "iec": "ARRAY [0..7] OF ST_AXIS_CONTROL",
+   "size": 352,
+   "lo": 0,
+   "hi": 7,
+   "basetype": "T_ST_AXIS_CONTROL"
+  },
+  "T_ARRAY__0__7__OF_T_ST_AXIS_PARAM": {
+   "kind": "TypeArray",
+   "iec": "ARRAY [0..7] OF ST_AXIS_PARAM",
+   "size": 256,
+   "lo": 0,
+   "hi": 7,
+   "basetype": "T_ST_AXIS_PARAM"
+  },
+  "T_ARRAY__1__6__OF_T_ST_CELL": {
+   "kind": "TypeArray",
+   "iec": "ARRAY [1..6] OF ST_CELL",
+   "size": 6,
+   "lo": 1,
+   "hi": 6,
+   "basetype": "T_ST_CELL"
+  },
+  "T_ST_AXIS_STATE": {
+   "kind": "TypeUserDef",
+   "iec": "ST_AXIS_STATE",
+   "size": 16,
+   "basetype": "",
+   "members": [
+    {
+     "name": "bValid",
+     "type": "T_BOOL",
+     "byteoffset": 0,
+     "access": "ReadWrite"
+    },
+    {
+     "name": "bBusy",
+     "type": "T_BOOL",
+     "byteoffset": 1,
+     "access": "ReadWrite"
+    },
+    {
+     "name": "bError",
+     "type": "T_BOOL",
+     "byteoffset": 2,
+     "access": "ReadWrite"
+    },
+    {
+     "name": "diErrorID",
+     "type": "T_INT",
+     "byteoffset": 4,
+     "access": "ReadWrite"
+    },
+    {
+     "name": "bDisabled",
+     "type": "T_BOOL",
+     "byteoffset": 6,
+     "access": "ReadWrite"
+    },
+    {
+     "name": "bStopped",
+     "type": "T_BOOL",
+     "byteoffset": 7,
+     "access": "ReadWrite"
+    },
+    {
+     "name": "bMoving",
+     "type": "T_BOOL",
+     "byteoffset": 8,
+     "access": "ReadWrite"
+    },
+    {
+     "name": "bHomed",
+     "type": "T_BOOL",
+     "byteoffset": 9,
+     "access": "ReadWrite"
+    },
+    {
+     "name": "tElapsed",
+     "type": "T_TIME",
+     "byteoffset": 12,
+     "access": "ReadWrite"
+    }
+   ]
+  },
+  "T_ST_AXIS_CONTROL": {
+   "kind": "TypeUserDef",
+   "iec": "ST_AXIS_CONTROL",
+   "size": 44,
+   "basetype": "",
+   "members": [
+    {
+     "name": "fSetPosition",
+     "type": "T_REAL",
+     "byteoffset": 0,
+     "access": "ReadWrite"
+    },
+    {
+     "name": "fActPosition",
+     "type": "T_REAL",
+     "byteoffset": 4,
+     "access": "ReadWrite"
+    },
+    {
+     "name": "tState",
+     "type": "T_ST_AXIS_STATE",
+     "byteoffset": 8,
+     "access": "ReadWrite"
+    },
+    {
+     "name": "bEnable",
+     "type": "T_BOOL",
+     "byteoffset": 24,
+     "access": "ReadWrite"
+    },
+    {
+     "name": "bEnabled",
+     "type": "T_BOOL",
+     "byteoffset": 25,
+     "access": "ReadWrite"
+    },
+    {
+     "name": "bLimitPos",
+     "type": "T_BOOL",
+     "byteoffset": 26,
+     "access": "ReadWrite"
+    },
+    {
+     "name": "bLimitNeg",
+     "type": "T_BOOL",
+     "byteoffset": 27,
+     "access": "ReadWrite"
+    },
+    {
+     "name": "bJogFwd",
+     "type": "T_BOOL",
+     "byteoffset": 28,
+     "access": "ReadWrite"
+    },
+    {
+     "name": "bJogBwd",
+     "type": "T_BOOL",
+     "byteoffset": 29,
+     "access": "ReadWrite"
+    },
+    {
+     "name": "aAbsSel",
+     "type": "T_ARRAY__0__2__OF_BOOL",
+     "byteoffset": 30,
+     "access": "ReadWrite"
+    },
+    {
+     "name": "fTargetVel",
+     "type": "T_REAL",
+     "byteoffset": 36,
+     "access": "ReadWrite"
+    },
+    {
+     "name": "diErrorCode",
+     "type": "T_DINT",
+     "byteoffset": 40,
+     "access": "ReadWrite"
+    }
+   ]
+  },
+  "T_ST_AXIS_PARAM": {
+   "kind": "TypeUserDef",
+   "iec": "ST_AXIS_PARAM",
+   "size": 32,
+   "basetype": "",
+   "members": [
+    {
+     "name": "fUpperLimit",
+     "type": "T_REAL",
+     "byteoffset": 0,
+     "access": "ReadWrite"
+    },
+    {
+     "name": "fLowerLimit",
+     "type": "T_REAL",
+     "byteoffset": 4,
+     "access": "ReadWrite"
+    },
+    {
+     "name": "fAcc",
+     "type": "T_REAL",
+     "byteoffset": 8,
+     "access": "ReadWrite"
+    },
+    {
+     "name": "fDec",
+     "type": "T_REAL",
+     "byteoffset": 12,
+     "access": "ReadWrite"
+    },
+    {
+     "name": "fJerk",
+     "type": "T_REAL",
+     "byteoffset": 16,
+     "access": "ReadWrite"
+    },
+    {
+     "name": "fJogVel",
+     "type": "T_REAL",
+     "byteoffset": 20,
+     "access": "ReadWrite"
+    },
+    {
+     "name": "diHomeOffset",
+     "type": "T_DINT",
+     "byteoffset": 24,
+     "access": "ReadWrite"
+    },
+    {
+     "name": "bInvertDir",
+     "type": "T_BOOL",
+     "byteoffset": 28,
+     "access": "ReadWrite"
+    },
+    {
+     "name": "bSoftLimitEn",
+     "type": "T_BOOL",
+     "byteoffset": 29,
+     "access": "ReadWrite"
+    },
+    {
+     "name": "iMode",
+     "type": "T_INT",
+     "byteoffset": 30,
+     "access": "ReadWrite"
+    }
+   ]
+  },
+  "T_U_CELL_RESULT": {
+   "kind": "TypeUserDef",
+   "iec": "U_CELL_RESULT",
+   "size": 0,
+   "basetype": "",
+   "members": [
+    {
+     "name": "eResult",
+     "type": "T_E_PRODUCT_RESULT",
+     "byteoffset": 0,
+     "access": "ReadWrite"
+    },
+    {
+     "name": "di",
+     "type": "T_DINT",
+     "byteoffset": 0,
+     "access": "ReadWrite"
+    }
+   ]
+  },
+  "T_ST_CELL": {
+   "kind": "TypeUserDef",
+   "iec": "ST_CELL",
+   "size": 1,
+   "basetype": "",
+   "members": [
+    {
+     "name": "uResult",
+     "type": "T_U_CELL_RESULT",
+     "byteoffset": 0,
+     "access": "ReadWrite"
+    },
+    {
+     "name": "bUsed",
+     "type": "T_BOOL",
+     "byteoffset": 0,
+     "access": "ReadWrite"
+    }
+   ]
+  },
+  "T_ST_PANEL_IN": {
+   "kind": "TypeUserDef",
+   "iec": "ST_PANEL_IN",
+   "size": 12,
+   "basetype": "",
+   "members": [
+    {
+     "name": "bStart",
+     "type": "T_BOOL",
+     "byteoffset": 0,
+     "access": "ReadWrite"
+    },
+    {
+     "name": "bStop",
+     "type": "T_BOOL",
+     "byteoffset": 1,
+     "access": "ReadWrite"
+    },
+    {
+     "name": "bReset",
+     "type": "T_BOOL",
+     "byteoffset": 2,
+     "access": "ReadWrite"
+    },
+    {
+     "name": "bEStop",
+     "type": "T_BOOL",
+     "byteoffset": 3,
+     "access": "ReadWrite"
+    },
+    {
+     "name": "iModeSel",
+     "type": "T_INT",
+     "byteoffset": 4,
+     "access": "ReadWrite"
+    },
+    {
+     "name": "diCoded",
+     "type": "T_DINT",
+     "byteoffset": 8,
+     "access": "ReadWrite"
+    }
+   ]
+  },
+  "T_ST_PANEL_OUT": {
+   "kind": "TypeUserDef",
+   "iec": "ST_PANEL_OUT",
+   "size": 8,
+   "basetype": "",
+   "members": [
+    {
+     "name": "bRunning",
+     "type": "T_BOOL",
+     "byteoffset": 0,
+     "access": "ReadWrite"
+    },
+    {
+     "name": "bAlarm",
+     "type": "T_BOOL",
+     "byteoffset": 1,
+     "access": "ReadWrite"
+    },
+    {
+     "name": "bReady",
+     "type": "T_BOOL",
+     "byteoffset": 2,
+     "access": "ReadWrite"
+    },
+    {
+     "name": "bFault",
+     "type": "T_BOOL",
+     "byteoffset": 3,
+     "access": "ReadWrite"
+    },
+    {
+     "name": "diCode",
+     "type": "T_DINT",
+     "byteoffset": 4,
+     "access": "ReadWrite"
+    }
+   ]
+  }
+ }
+}

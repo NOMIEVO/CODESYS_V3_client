@@ -1,0 +1,8 @@
+# 运行时产物（不应提交/分发）
+server/plc-config.json
+out/*/drill-layout.json
+node_modules/
+
+# 系统文件
+Thumbs.db
+.DS_Store

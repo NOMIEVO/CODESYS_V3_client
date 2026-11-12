@@ -1,0 +1,30 @@
+﻿domain,index,field,name,type,access,unit,period_ms,note
+axis,0,axActPos,送料轴实际位置,REAL,r,mm,200,
+axis,1,axActPos,裁切轴实际位置,REAL,r,mm,200,
+axis,2,axActPos,收料轴实际位置,REAL,r,mm,200,
+axis,3,axActPos,张力轴实际位置,REAL,r,mm,200,
+axis,0,axActVel,送料轴实际速度,REAL,r,mm/s,200,
+axis,1,axActVel,裁切轴实际速度,REAL,r,mm/s,200,
+axis,2,axActVel,收料轴实际速度,REAL,r,mm/s,200,
+axis,3,axActVel,张力轴实际速度,REAL,r,mm/s,200,
+axis,0,axStatus,送料轴状态字,WORD,r,,200,bit0 使能 bit1 到位 bit2 回零 bit3 报警
+axis,1,axStatus,裁切轴状态字,WORD,r,,200,bit0 使能 bit1 到位 bit2 回零 bit3 报警
+axis,2,axStatus,收料轴状态字,WORD,r,,200,bit0 使能 bit1 到位 bit2 回零 bit3 报警
+axis,3,axStatus,张力轴状态字,WORD,r,,200,bit0 使能 bit1 到位 bit2 回零 bit3 报警
+axis,0,axControl,送料轴控制字,WORD,rw,,0,bit0 使能 bit1 启动 bit2 停止 bit3 回零
+axis,1,axControl,裁切轴控制字,WORD,rw,,0,bit0 使能 bit1 启动 bit2 停止 bit3 回零
+axis,2,axControl,收料轴控制字,WORD,rw,,0,bit0 使能 bit1 启动 bit2 停止 bit3 回零
+axis,3,axControl,张力轴控制字,WORD,rw,,0,bit0 使能 bit1 启动 bit2 停止 bit3 回零
+device,0,dvRunState,印刷单元运行状态,WORD,r,,200,0 待机 1 运行 2 故障 3 维护
+device,1,dvRunState,复合单元运行状态,WORD,r,,200,0 待机 1 运行 2 故障 3 维护
+device,0,dvCycleTime,印刷单元当前节拍,REAL,r,ms,200,
+device,1,dvCycleTime,复合单元当前节拍,REAL,r,ms,200,
+device,0,dvSetSpeed,印刷单元设定速度,REAL,rw,rpm,0,范围 0~180
+device,1,dvSetSpeed,复合单元设定速度,REAL,rw,rpm,0,范围 0~180
+alarm,0,almWord,印刷单元报警字,WORD,r,,500,bit0 急停 bit1 断料 bit3 超温
+alarm,1,almWord,复合单元报警字,WORD,r,,500,bit0 急停 bit2 胶量低 bit5 张力超限
+alarm,0,almAckReq,印刷单元报警确认,WORD,rw,,0,
+alarm,1,almAckReq,复合单元报警确认,WORD,rw,,0,
+sys,0,sysHeartbeat,PLC心跳,UDINT,r,,100,每100ms加1
+sys,0,sysRunTimeS,运行秒数,UDINT,r,s,1000,
+sys,0,sysMode,系统模式,WORD,rw,,0,0 手动 1 自动 2 单步 3 维护

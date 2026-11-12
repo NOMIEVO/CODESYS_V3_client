@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MYX · 全量变量浏览器</title>
+<link rel="stylesheet" href="verify.css">
+<link rel="stylesheet" href="full.css">
+</head>
+<body class="full-page">
+
+<header class="fbar">
+  <div class="fbar-l">
+    <a class="back" href="/" title="返回协议验证台">←</a>
+    <div class="fbar-title">
+      <b>全量变量浏览器</b>
+      <span id="fbarApp">XML 符号表 · 分批登记 · 单轮 ExecuteRead 全量轮询</span>
+    </div>
+  </div>
+  <div class="fbar-stats" id="fstats">
+    <div class="fst"><span>列表</span><b id="stLists">--</b></div>
+    <div class="fst"><span>变量</span><b id="stEntries">--</b></div>
+    <div class="fst"><span>数据量</span><b id="stBytes">--</b></div>
+    <div class="fst"><span>扫描耗时</span><b id="stMs">--</b></div>
+    <div class="fst"><span>轮次</span><b id="stSeq">--</b></div>
+  </div>
+  <div class="fbar-r">
+    <span class="dot" id="linkDot"></span>
+    <span class="link-text" id="linkText">未连接</span>
+  </div>
+</header>
+
+<div class="fwrap">
+  <nav class="fnav" id="fnav">
+    <div class="fnav-h">GVL 分组</div>
+    <button class="gvl active" data-gvl="*">全部<span class="cnt">--</span></button>
+  </nav>
+
+  <main class="fmain">
+    <div class="ftoolbar">
+      <div class="search">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <input id="q" type="text" placeholder="搜索变量名 / 注释…" spellcheck="false">
+      </div>
+      <label class="chk"><input type="checkbox" id="onlyChanged"> 只看变化</label>
+      <span class="hint" id="resultHint">--</span>
+    </div>
+
+    <div class="ftable-wrap">
+      <table class="ftable">
+        <thead>
+          <tr><th style="width:30%">变量</th><th style="width:17%">类型</th><th style="width:20%">值</th><th style="width:8%">字节</th><th style="width:25%">写入</th></tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="wtoast" id="wtoast" hidden></div>
+  </main>
+</div>
+
+<!-- 结构体钻取弹窗：成员值查看 + 可写成员直接写入 -->
+<div class="dmodal" id="dmodal" hidden>
+  <div class="dcard">
+    <header class="dhead">
+      <div class="dtitle">
+        <b id="dname">--</b>
+        <span class="dtype" id="dtype">--</span>
+        <span class="dcomment" id="dcomment"></span>
+      </div>
+      <div class="dact">
+        <span class="dms" id="dms"></span>
+        <button class="dbtn" id="drefresh" title="重新读取全部成员">刷新</button>
+        <button class="dbtn warn" id="dclose">✕ 关闭</button>
+      </div>
+    </header>
+    <div class="dscroll">
+      <table class="dtable">
+        <thead><tr><th style="width:42%">成员</th><th style="width:10%">类型</th><th style="width:24%">当前值</th><th style="width:24%">写入</th></tr></thead>
+        <tbody id="dtbody"></tbody>
+      </table>
+    </div>
+    <div class="dhint" id="dhint"></div>
+  </div>
+</div>
+
+<script src="full.js"></script>
+</body>
+</html>

@@ -1,0 +1,400 @@
+{
+ "schema": "gen-symbols/1",
+ "app": "DEMO_MACHINE",
+ "generatedFrom": "E:\\Workbuddy\\HMI_CONFIT\\CODESYS_V3_client\\example\\DEMO_MACHINE.Device.Application.xml",
+ "symbolCount": 49,
+ "symbols": [
+  {
+   "key": "GVL_AXIS",
+   "typeName": null,
+   "kind": "CONTAINER",
+   "iec": "",
+   "size": 0,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_AXIS.aAxisCtl",
+   "typeName": "T_ARRAY__0__7__OF_T_ST_AXIS_CONTROL",
+   "kind": "TypeArray",
+   "iec": "ARRAY [0..7] OF ST_AXIS_CONTROL",
+   "size": 352,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_AXIS.aAxisParam",
+   "typeName": "T_ARRAY__0__7__OF_T_ST_AXIS_PARAM",
+   "kind": "TypeArray",
+   "iec": "ARRAY [0..7] OF ST_AXIS_PARAM",
+   "size": 256,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_IO",
+   "typeName": null,
+   "kind": "CONTAINER",
+   "iec": "",
+   "size": 0,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_IO.bAirPressure",
+   "typeName": "T_BOOL",
+   "kind": "TypeSimple",
+   "iec": "BOOL",
+   "size": 1,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_IO.bFeedMaterial",
+   "typeName": "T_BOOL",
+   "kind": "TypeSimple",
+   "iec": "BOOL",
+   "size": 1,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_IO.bPartDetect",
+   "typeName": "T_BOOL",
+   "kind": "TypeSimple",
+   "iec": "BOOL",
+   "size": 1,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_IO.bSafetyDoor",
+   "typeName": "T_BOOL",
+   "kind": "TypeSimple",
+   "iec": "BOOL",
+   "size": 1,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_IO.bSafetyOk",
+   "typeName": "T_BOOL",
+   "kind": "TypeSimple",
+   "iec": "BOOL",
+   "size": 1,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_IO.diPowerOnCount",
+   "typeName": "T_DINT",
+   "kind": "TypeSimple",
+   "iec": "DINT",
+   "size": 4,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_IO.diStopReason",
+   "typeName": "T_INT",
+   "kind": "TypeSimple",
+   "iec": "INT",
+   "size": 2,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_MAIN",
+   "typeName": null,
+   "kind": "CONTAINER",
+   "iec": "",
+   "size": 0,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_MAIN.aAlarmCode",
+   "typeName": "T_ARRAY__0__100__OF_INT",
+   "kind": "TypeArray",
+   "iec": "ARRAY [0..100] OF INT",
+   "size": 202,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_MAIN.aAlarmFlag",
+   "typeName": "T_ARRAY__0__100__OF_BOOL",
+   "kind": "TypeArray",
+   "iec": "ARRAY [0..100] OF BOOL",
+   "size": 101,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_MAIN.aAngleMax",
+   "typeName": "T_ARRAY__1__6__OF_DINT",
+   "kind": "TypeArray",
+   "iec": "ARRAY [1..6] OF DINT",
+   "size": 24,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_MAIN.aAngleMin",
+   "typeName": "T_ARRAY__1__6__OF_DINT",
+   "kind": "TypeArray",
+   "iec": "ARRAY [1..6] OF DINT",
+   "size": 24,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_MAIN.aAxisVel",
+   "typeName": "T_ARRAY__0__9__OF_REAL",
+   "kind": "TypeArray",
+   "iec": "ARRAY [0..9] OF REAL",
+   "size": 40,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_MAIN.aErrCode",
+   "typeName": "T_ARRAY__0__100__OF_INT",
+   "kind": "TypeArray",
+   "iec": "ARRAY [0..100] OF INT",
+   "size": 202,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_MAIN.aErrFlag",
+   "typeName": "T_ARRAY__0__100__OF_BOOL",
+   "kind": "TypeArray",
+   "iec": "ARRAY [0..100] OF BOOL",
+   "size": 101,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_MAIN.aInfoCode",
+   "typeName": "T_ARRAY__0__100__OF_INT",
+   "kind": "TypeArray",
+   "iec": "ARRAY [0..100] OF INT",
+   "size": 202,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_MAIN.aInfoFlag",
+   "typeName": "T_ARRAY__0__100__OF_BOOL",
+   "kind": "TypeArray",
+   "iec": "ARRAY [0..100] OF BOOL",
+   "size": 101,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_MAIN.aStationNo",
+   "typeName": "T_ARRAY__1__6__OF_DINT",
+   "kind": "TypeArray",
+   "iec": "ARRAY [1..6] OF DINT",
+   "size": 24,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_MAIN.aiStatus",
+   "typeName": "T_ARRAY__0__20__OF_INT",
+   "kind": "TypeArray",
+   "iec": "ARRAY [0..20] OF INT",
+   "size": 42,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_MAIN.bAutoMode",
+   "typeName": "T_BOOL",
+   "kind": "TypeSimple",
+   "iec": "BOOL",
+   "size": 1,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_MAIN.bEStop",
+   "typeName": "T_BOOL",
+   "kind": "TypeSimple",
+   "iec": "BOOL",
+   "size": 1,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_MAIN.bEtherCAT",
+   "typeName": "T_BOOL",
+   "kind": "TypeSimple",
+   "iec": "BOOL",
+   "size": 1,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_MAIN.bIoOk",
+   "typeName": "T_BOOL",
+   "kind": "TypeSimple",
+   "iec": "BOOL",
+   "size": 1,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_MAIN.bResetCount",
+   "typeName": "T_BOOL",
+   "kind": "TypeSimple",
+   "iec": "BOOL",
+   "size": 1,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_MAIN.bRunning",
+   "typeName": "T_BOOL",
+   "kind": "TypeSimple",
+   "iec": "BOOL",
+   "size": 1,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_MAIN.diPartCount",
+   "typeName": "T_DINT",
+   "kind": "TypeSimple",
+   "iec": "DINT",
+   "size": 4,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_MAIN.diTotalCount",
+   "typeName": "T_DINT",
+   "kind": "TypeSimple",
+   "iec": "DINT",
+   "size": 4,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_MAIN.eMode",
+   "typeName": "T_E_MODE",
+   "kind": "TypeUserDef",
+   "iec": "E_MODE",
+   "size": 2,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_MAIN.lrSpeed",
+   "typeName": "T_LREAL",
+   "kind": "TypeSimple",
+   "iec": "LREAL",
+   "size": 8,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_PANEL",
+   "typeName": null,
+   "kind": "CONTAINER",
+   "iec": "",
+   "size": 0,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_PANEL.stInput",
+   "typeName": "T_ST_PANEL_IN",
+   "kind": "TypeUserDef",
+   "iec": "ST_PANEL_IN",
+   "size": 12,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_PANEL.stOutput",
+   "typeName": "T_ST_PANEL_OUT",
+   "kind": "TypeUserDef",
+   "iec": "ST_PANEL_OUT",
+   "size": 8,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_STATION",
+   "typeName": null,
+   "kind": "CONTAINER",
+   "iec": "",
+   "size": 0,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_STATION.aCell",
+   "typeName": "T_ARRAY__1__6__OF_T_ST_CELL",
+   "kind": "TypeArray",
+   "iec": "ARRAY [1..6] OF ST_CELL",
+   "size": 6,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_STATION.bVisionEnable",
+   "typeName": "T_BOOL",
+   "kind": "TypeSimple",
+   "iec": "BOOL",
+   "size": 1,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_STATION.diCycleCount",
+   "typeName": "T_DINT",
+   "kind": "TypeSimple",
+   "iec": "DINT",
+   "size": 4,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_STATION.diNgCount",
+   "typeName": "T_DINT",
+   "kind": "TypeSimple",
+   "iec": "DINT",
+   "size": 4,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_STATION.diOkCount",
+   "typeName": "T_DINT",
+   "kind": "TypeSimple",
+   "iec": "DINT",
+   "size": 4,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_STATION.diStationNo",
+   "typeName": "T_DINT",
+   "kind": "TypeSimple",
+   "iec": "DINT",
+   "size": 4,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_STATION.diTarget",
+   "typeName": "T_DINT",
+   "kind": "TypeSimple",
+   "iec": "DINT",
+   "size": 4,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_STATION.rActual",
+   "typeName": "T_REAL",
+   "kind": "TypeSimple",
+   "iec": "REAL",
+   "size": 4,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_STATION.rLowerLimit",
+   "typeName": "T_REAL",
+   "kind": "TypeSimple",
+   "iec": "REAL",
+   "size": 4,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_STATION.rReference",
+   "typeName": "T_REAL",
+   "kind": "TypeSimple",
+   "iec": "REAL",
+   "size": 4,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_STATION.rTarget",
+   "typeName": "T_REAL",
+   "kind": "TypeSimple",
+   "iec": "REAL",
+   "size": 4,
+   "isArrayElem": false
+  },
+  {
+   "key": "GVL_STATION.rUpperLimit",
+   "typeName": "T_REAL",
+   "kind": "TypeSimple",
+   "iec": "REAL",
+   "size": 4,
+   "isArrayElem": false
+  }
+ ]
+}

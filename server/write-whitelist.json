@@ -1,0 +1,56 @@
+{
+  "_note": [
+    "写入白名单：验证台只允许写这些变量（服务端强校验，绕过前端也写不进去）。",
+    "入选原则：设计上就该由人写的设定值与命令。计数、报警状态、寿命计时等",
+    "PLC 独占的变量一律不进名单。",
+    "自检用例默认做 no-op 回写（写回刚读到的原值），不改变现场。",
+    "演示工程 DEMO_MACHINE 为纯合成数据，不代表任何真实设备。"
+  ],
+  "allow": [
+    {
+      "name": "GVL_STATION.diTarget",
+      "type": "DINT",
+      "comment": "设定产量"
+    },
+    {
+      "name": "GVL_STATION.rTarget",
+      "type": "REAL",
+      "comment": "目标值设定"
+    },
+    {
+      "name": "GVL_STATION.rUpperLimit",
+      "type": "REAL",
+      "comment": "上限设定"
+    },
+    {
+      "name": "GVL_STATION.rLowerLimit",
+      "type": "REAL",
+      "comment": "下限设定"
+    },
+    {
+      "name": "GVL_STATION.rReference",
+      "type": "REAL",
+      "comment": "基准值设定"
+    },
+    {
+      "name": "GVL_STATION.bVisionEnable",
+      "type": "BOOL",
+      "comment": "视觉启用（BOOL 设定值）"
+    },
+    {
+      "name": "GVL_MAIN.diTotalCount",
+      "type": "DINT",
+      "comment": "总计数（写后应立即恢复）"
+    },
+    {
+      "name": "GVL_MAIN.diPartCount",
+      "type": "DINT",
+      "comment": "循环计数（写后应立即恢复）"
+    },
+    {
+      "name": "GVL_IO.bSafetyDoor",
+      "type": "BOOL",
+      "comment": "输入映射点示例：写入 status=0 但会被扫描周期覆盖，保留用于演示该行为"
+    }
+  ]
+}

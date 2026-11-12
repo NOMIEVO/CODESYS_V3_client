@@ -1,0 +1,168 @@
+{
+ "schema": "gen-profile/1",
+ "app": "DEMO_MACHINE",
+ "note": "选点档案：改这里再跑 tools/gen_tags.py 即可换点；key 必须与 XML 一致，类型一律由 XML 决定（不许写 type）。",
+ "points": [
+  {
+   "key": "GVL_MAIN.diTotalCount",
+   "label": "累计产量",
+   "unit": "pcs",
+   "group": "count",
+   "digits": 0
+  },
+  {
+   "key": "GVL_MAIN.diPartCount",
+   "label": "循环计数",
+   "unit": "pcs",
+   "group": "count",
+   "digits": 0
+  },
+  {
+   "key": "GVL_STATION.diOkCount",
+   "label": "合格数",
+   "unit": "pcs",
+   "group": "count",
+   "digits": 0
+  },
+  {
+   "key": "GVL_STATION.diNgCount",
+   "label": "不良数",
+   "unit": "pcs",
+   "group": "count",
+   "digits": 0
+  },
+  {
+   "key": "GVL_STATION.diTarget",
+   "label": "设定产量",
+   "unit": "pcs",
+   "group": "count",
+   "digits": 0
+  },
+  {
+   "key": "GVL_MAIN.bRunning",
+   "label": "运行中",
+   "unit": "",
+   "group": "run",
+   "digits": 0
+  },
+  {
+   "key": "GVL_MAIN.bAutoMode",
+   "label": "自动模式",
+   "unit": "",
+   "group": "run",
+   "digits": 0
+  },
+  {
+   "key": "GVL_MAIN.lrSpeed",
+   "label": "实际速度",
+   "unit": "mm/s",
+   "group": "run",
+   "digits": 1
+  },
+  {
+   "key": "GVL_STATION.rActual",
+   "label": "当前实测",
+   "unit": "mm",
+   "group": "run",
+   "digits": 2
+  },
+  {
+   "key": "GVL_STATION.diStationNo",
+   "label": "当前工位",
+   "unit": "",
+   "group": "run",
+   "digits": 0
+  },
+  {
+   "key": "GVL_STATION.diCycleCount",
+   "label": "循环计数",
+   "unit": "",
+   "group": "run",
+   "digits": 0
+  },
+  {
+   "key": "GVL_MAIN.bEStop",
+   "label": "急停回路",
+   "unit": "",
+   "group": "link",
+   "digits": 0
+  },
+  {
+   "key": "GVL_MAIN.bEtherCAT",
+   "label": "总线就绪",
+   "unit": "",
+   "group": "link",
+   "digits": 0
+  },
+  {
+   "key": "GVL_MAIN.bIoOk",
+   "label": "IO 模块",
+   "unit": "",
+   "group": "link",
+   "digits": 0
+  },
+  {
+   "key": "GVL_IO.bSafetyDoor",
+   "label": "安全门到位",
+   "unit": "",
+   "group": "link",
+   "digits": 0
+  },
+  {
+   "key": "GVL_IO.bSafetyOk",
+   "label": "安全允许",
+   "unit": "",
+   "group": "link",
+   "digits": 0
+  },
+  {
+   "key": "GVL_IO.bAirPressure",
+   "label": "气压正常",
+   "unit": "",
+   "group": "link",
+   "digits": 0
+  },
+  {
+   "key": "GVL_IO.diPowerOnCount",
+   "label": "开机次数",
+   "unit": "",
+   "group": "link",
+   "digits": 0
+  },
+  {
+   "key": "GVL_STATION.rTarget",
+   "label": "目标值",
+   "unit": "mm",
+   "group": "param",
+   "digits": 2
+  },
+  {
+   "key": "GVL_STATION.rUpperLimit",
+   "label": "上限设定",
+   "unit": "mm",
+   "group": "param",
+   "digits": 1
+  },
+  {
+   "key": "GVL_STATION.rLowerLimit",
+   "label": "下限设定",
+   "unit": "mm",
+   "group": "param",
+   "digits": 1
+  },
+  {
+   "key": "GVL_STATION.rReference",
+   "label": "基准值",
+   "unit": "mm",
+   "group": "param",
+   "digits": 1
+  },
+  {
+   "key": "GVL_STATION.bVisionEnable",
+   "label": "视觉启用",
+   "unit": "",
+   "group": "param",
+   "digits": 0
+  }
+ ]
+}

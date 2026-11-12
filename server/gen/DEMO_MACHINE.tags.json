@@ -1,0 +1,216 @@
+{
+ "schema": "gen-tags/1",
+ "app": "DEMO_MACHINE",
+ "generatedFrom": "E:\\Workbuddy\\HMI_CONFIT\\CODESYS_V3_client\\example\\DEMO_MACHINE.Device.Application.xml",
+ "generatedAt": "2026-11-12T14:56:54",
+ "note": "由 tools/gen_tags.py 从 XML 符号配置自动生成，禁止手改；类型以 XML 为唯一准则。改选点请编辑 server/profiles/DEMO_MACHINE.profile.json",
+ "tags": [
+  {
+   "key": "GVL_MAIN.diTotalCount",
+   "label": "累计产量",
+   "unit": "pcs",
+   "type": "DINT",
+   "digits": 0,
+   "group": "count",
+   "iec": "DINT"
+  },
+  {
+   "key": "GVL_MAIN.diPartCount",
+   "label": "循环计数",
+   "unit": "pcs",
+   "type": "DINT",
+   "digits": 0,
+   "group": "count",
+   "iec": "DINT"
+  },
+  {
+   "key": "GVL_STATION.diOkCount",
+   "label": "合格数",
+   "unit": "pcs",
+   "type": "DINT",
+   "digits": 0,
+   "group": "count",
+   "iec": "DINT"
+  },
+  {
+   "key": "GVL_STATION.diNgCount",
+   "label": "不良数",
+   "unit": "pcs",
+   "type": "DINT",
+   "digits": 0,
+   "group": "count",
+   "iec": "DINT"
+  },
+  {
+   "key": "GVL_STATION.diTarget",
+   "label": "设定产量",
+   "unit": "pcs",
+   "type": "DINT",
+   "digits": 0,
+   "group": "count",
+   "iec": "DINT"
+  },
+  {
+   "key": "GVL_MAIN.bRunning",
+   "label": "运行中",
+   "unit": "",
+   "type": "BOOL",
+   "digits": 0,
+   "group": "run",
+   "iec": "BOOL"
+  },
+  {
+   "key": "GVL_MAIN.bAutoMode",
+   "label": "自动模式",
+   "unit": "",
+   "type": "BOOL",
+   "digits": 0,
+   "group": "run",
+   "iec": "BOOL"
+  },
+  {
+   "key": "GVL_MAIN.lrSpeed",
+   "label": "实际速度",
+   "unit": "mm/s",
+   "type": "LREAL",
+   "digits": 1,
+   "group": "run",
+   "iec": "LREAL"
+  },
+  {
+   "key": "GVL_STATION.rActual",
+   "label": "当前实测",
+   "unit": "mm",
+   "type": "REAL",
+   "digits": 2,
+   "group": "run",
+   "iec": "REAL"
+  },
+  {
+   "key": "GVL_STATION.diStationNo",
+   "label": "当前工位",
+   "unit": "",
+   "type": "DINT",
+   "digits": 0,
+   "group": "run",
+   "iec": "DINT"
+  },
+  {
+   "key": "GVL_STATION.diCycleCount",
+   "label": "循环计数",
+   "unit": "",
+   "type": "DINT",
+   "digits": 0,
+   "group": "run",
+   "iec": "DINT"
+  },
+  {
+   "key": "GVL_MAIN.bEStop",
+   "label": "急停回路",
+   "unit": "",
+   "type": "BOOL",
+   "digits": 0,
+   "group": "link",
+   "iec": "BOOL"
+  },
+  {
+   "key": "GVL_MAIN.bEtherCAT",
+   "label": "总线就绪",
+   "unit": "",
+   "type": "BOOL",
+   "digits": 0,
+   "group": "link",
+   "iec": "BOOL"
+  },
+  {
+   "key": "GVL_MAIN.bIoOk",
+   "label": "IO 模块",
+   "unit": "",
+   "type": "BOOL",
+   "digits": 0,
+   "group": "link",
+   "iec": "BOOL"
+  },
+  {
+   "key": "GVL_IO.bSafetyDoor",
+   "label": "安全门到位",
+   "unit": "",
+   "type": "BOOL",
+   "digits": 0,
+   "group": "link",
+   "iec": "BOOL"
+  },
+  {
+   "key": "GVL_IO.bSafetyOk",
+   "label": "安全允许",
+   "unit": "",
+   "type": "BOOL",
+   "digits": 0,
+   "group": "link",
+   "iec": "BOOL"
+  },
+  {
+   "key": "GVL_IO.bAirPressure",
+   "label": "气压正常",
+   "unit": "",
+   "type": "BOOL",
+   "digits": 0,
+   "group": "link",
+   "iec": "BOOL"
+  },
+  {
+   "key": "GVL_IO.diPowerOnCount",
+   "label": "开机次数",
+   "unit": "",
+   "type": "DINT",
+   "digits": 0,
+   "group": "link",
+   "iec": "DINT"
+  },
+  {
+   "key": "GVL_STATION.rTarget",
+   "label": "目标值",
+   "unit": "mm",
+   "type": "REAL",
+   "digits": 2,
+   "group": "param",
+   "iec": "REAL"
+  },
+  {
+   "key": "GVL_STATION.rUpperLimit",
+   "label": "上限设定",
+   "unit": "mm",
+   "type": "REAL",
+   "digits": 1,
+   "group": "param",
+   "iec": "REAL"
+  },
+  {
+   "key": "GVL_STATION.rLowerLimit",
+   "label": "下限设定",
+   "unit": "mm",
+   "type": "REAL",
+   "digits": 1,
+   "group": "param",
+   "iec": "REAL"
+  },
+  {
+   "key": "GVL_STATION.rReference",
+   "label": "基准值",
+   "unit": "mm",
+   "type": "REAL",
+   "digits": 1,
+   "group": "param",
+   "iec": "REAL"
+  },
+  {
+   "key": "GVL_STATION.bVisionEnable",
+   "label": "视觉启用",
+   "unit": "",
+   "type": "BOOL",
+   "digits": 0,
+   "group": "param",
+   "iec": "BOOL"
+  }
+ ]
+}

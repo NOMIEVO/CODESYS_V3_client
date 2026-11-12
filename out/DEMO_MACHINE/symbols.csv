@@ -1,0 +1,45 @@
+﻿GVL,符号名,IEC类型,字节,元素数,元素跨度,叶子点,访问,布局可信,风险,注释,OPC UA 节点ID
+Application.GVL_MAIN,diTotalCount,DINT,4,1,4,1,rw,Y,,总计数,ns=4;s=Application.GVL_MAIN.diTotalCount
+Application.GVL_MAIN,diPartCount,DINT,4,1,4,1,rw,Y,,循环计数,ns=4;s=Application.GVL_MAIN.diPartCount
+Application.GVL_MAIN,bResetCount,BOOL,1,1,1,1,rw,Y,,计数清零,ns=4;s=Application.GVL_MAIN.bResetCount
+Application.GVL_MAIN,bAutoMode,BOOL,1,1,1,1,rw,Y,,自动模式,ns=4;s=Application.GVL_MAIN.bAutoMode
+Application.GVL_MAIN,bRunning,BOOL,1,1,1,1,rw,Y,,运行中,ns=4;s=Application.GVL_MAIN.bRunning
+Application.GVL_MAIN,lrSpeed,LREAL,8,1,8,1,rw,Y,,实际速度,ns=4;s=Application.GVL_MAIN.lrSpeed
+Application.GVL_MAIN,bEStop,BOOL,1,1,1,1,rw,Y,,急停回路,ns=4;s=Application.GVL_MAIN.bEStop
+Application.GVL_MAIN,bEtherCAT,BOOL,1,1,1,1,rw,Y,,总线就绪,ns=4;s=Application.GVL_MAIN.bEtherCAT
+Application.GVL_MAIN,bIoOk,BOOL,1,1,1,1,rw,Y,,IO 模块就绪,ns=4;s=Application.GVL_MAIN.bIoOk
+Application.GVL_MAIN,eMode,E_MODE,2,1,2,1,rw,Y,,控制模式,ns=4;s=Application.GVL_MAIN.eMode
+Application.GVL_MAIN,aiStatus,ARRAY [0..20] OF INT,42,21,2,21,rw,Y,,流程字,ns=4;s=Application.GVL_MAIN.aiStatus
+Application.GVL_MAIN,aAlarmFlag,ARRAY [0..100] OF BOOL,101,101,1,101,rw,Y,,报警状态,ns=4;s=Application.GVL_MAIN.aAlarmFlag
+Application.GVL_MAIN,aAlarmCode,ARRAY [0..100] OF INT,202,101,2,101,rw,Y,,报警代码,ns=4;s=Application.GVL_MAIN.aAlarmCode
+Application.GVL_MAIN,aInfoFlag,ARRAY [0..100] OF BOOL,101,101,1,101,rw,Y,,提示状态,ns=4;s=Application.GVL_MAIN.aInfoFlag
+Application.GVL_MAIN,aInfoCode,ARRAY [0..100] OF INT,202,101,2,101,rw,Y,,提示代码,ns=4;s=Application.GVL_MAIN.aInfoCode
+Application.GVL_MAIN,aErrFlag,ARRAY [0..100] OF BOOL,101,101,1,101,rw,Y,,故障状态,ns=4;s=Application.GVL_MAIN.aErrFlag
+Application.GVL_MAIN,aErrCode,ARRAY [0..100] OF INT,202,101,2,101,rw,Y,,故障代码,ns=4;s=Application.GVL_MAIN.aErrCode
+Application.GVL_MAIN,aStationNo,ARRAY [1..6] OF DINT,24,6,4,6,rw,Y,,工位号表,ns=4;s=Application.GVL_MAIN.aStationNo
+Application.GVL_MAIN,aAngleMax,ARRAY [1..6] OF DINT,24,6,4,6,rw,Y,,角度上限表,ns=4;s=Application.GVL_MAIN.aAngleMax
+Application.GVL_MAIN,aAngleMin,ARRAY [1..6] OF DINT,24,6,4,6,rw,Y,,角度下限表,ns=4;s=Application.GVL_MAIN.aAngleMin
+Application.GVL_MAIN,aAxisVel,ARRAY [0..9] OF REAL,40,10,4,10,rw,Y,,轴速度表,ns=4;s=Application.GVL_MAIN.aAxisVel
+Application.GVL_AXIS,aAxisCtl,ARRAY [0..7] OF ST_AXIS_CONTROL,352,8,44,176,rw,Y,,轴控制数据,ns=4;s=Application.GVL_AXIS.aAxisCtl
+Application.GVL_AXIS,aAxisParam,ARRAY [0..7] OF ST_AXIS_PARAM,256,8,32,80,rw,Y,,轴参数,ns=4;s=Application.GVL_AXIS.aAxisParam
+Application.GVL_STATION,rActual,REAL,4,1,4,1,rw,Y,,当前实测值,ns=4;s=Application.GVL_STATION.rActual
+Application.GVL_STATION,rTarget,REAL,4,1,4,1,rw,Y,,目标值,ns=4;s=Application.GVL_STATION.rTarget
+Application.GVL_STATION,rUpperLimit,REAL,4,1,4,1,rw,Y,,上限设定,ns=4;s=Application.GVL_STATION.rUpperLimit
+Application.GVL_STATION,rLowerLimit,REAL,4,1,4,1,rw,Y,,下限设定,ns=4;s=Application.GVL_STATION.rLowerLimit
+Application.GVL_STATION,rReference,REAL,4,1,4,1,rw,Y,,基准值,ns=4;s=Application.GVL_STATION.rReference
+Application.GVL_STATION,bVisionEnable,BOOL,1,1,1,1,rw,Y,,视觉启用,ns=4;s=Application.GVL_STATION.bVisionEnable
+Application.GVL_STATION,diOkCount,DINT,4,1,4,1,rw,Y,,合格数,ns=4;s=Application.GVL_STATION.diOkCount
+Application.GVL_STATION,diNgCount,DINT,4,1,4,1,rw,Y,,不良数,ns=4;s=Application.GVL_STATION.diNgCount
+Application.GVL_STATION,diTarget,DINT,4,1,4,1,rw,Y,,设定产量,ns=4;s=Application.GVL_STATION.diTarget
+Application.GVL_STATION,diStationNo,DINT,4,1,4,1,rw,Y,,当前工位号,ns=4;s=Application.GVL_STATION.diStationNo
+Application.GVL_STATION,diCycleCount,DINT,4,1,4,1,rw,Y,,循环计数,ns=4;s=Application.GVL_STATION.diCycleCount
+Application.GVL_STATION,aCell,ARRAY [1..6] OF ST_CELL,72,6,12,18,rw,Y,,工位数据（联合体）,ns=4;s=Application.GVL_STATION.aCell
+Application.GVL_IO,bSafetyDoor,BOOL,1,1,1,1,rw,Y,,安全门到位,ns=4;s=Application.GVL_IO.bSafetyDoor
+Application.GVL_IO,bSafetyOk,BOOL,1,1,1,1,rw,Y,,安全允许,ns=4;s=Application.GVL_IO.bSafetyOk
+Application.GVL_IO,bAirPressure,BOOL,1,1,1,1,rw,Y,,气压正常,ns=4;s=Application.GVL_IO.bAirPressure
+Application.GVL_IO,bFeedMaterial,BOOL,1,1,1,1,rw,Y,,上料检测,ns=4;s=Application.GVL_IO.bFeedMaterial
+Application.GVL_IO,bPartDetect,BOOL,1,1,1,1,rw,Y,,物料检测,ns=4;s=Application.GVL_IO.bPartDetect
+Application.GVL_IO,diPowerOnCount,DINT,4,1,4,1,rw,Y,,开机次数,ns=4;s=Application.GVL_IO.diPowerOnCount
+Application.GVL_IO,diStopReason,INT,2,1,2,1,rw,Y,,停机原因,ns=4;s=Application.GVL_IO.diStopReason
+Application.GVL_PANEL,stInput,ST_PANEL_IN,12,1,12,6,rw,Y,,面板输入,ns=4;s=Application.GVL_PANEL.stInput
+Application.GVL_PANEL,stOutput,ST_PANEL_OUT,8,1,8,5,rw,Y,,面板输出,ns=4;s=Application.GVL_PANEL.stOutput

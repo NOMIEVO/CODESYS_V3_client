@@ -1,0 +1,1515 @@
+{
+ "schema": "hmi-tagtable/2",
+ "source": {
+  "file": "DEMO_MACHINE.Device.Application.xml",
+  "symcfg_version": "3.5.14.0",
+  "profile": "CODESYS V3.5 SP22 Patch 1+",
+  "runtimeid": "3.5.17.40",
+  "project": "DEMO_MACHINE",
+  "device": "Device",
+  "app": "Application"
+ },
+ "stats": {
+  "gvlCount": 5,
+  "symbolCount": 44,
+  "leafPoints": 968,
+  "totalBytes": 1839
+ },
+ "types": {
+  "T_ARRAY__0__100__OF_BOOL": {
+   "kind": "TypeArray",
+   "iec": "ARRAY [0..100] OF BOOL",
+   "bytes": 101,
+   "align": 1,
+   "declaredBytes": 101,
+   "verified": true,
+   "base": "T_BOOL",
+   "count": 101,
+   "elemStride": 1,
+   "dims": [
+    {
+     "min": 0,
+     "max": 100
+    }
+   ]
+  },
+  "T_ARRAY__0__100__OF_INT": {
+   "kind": "TypeArray",
+   "iec": "ARRAY [0..100] OF INT",
+   "bytes": 202,
+   "align": 2,
+   "declaredBytes": 202,
+   "verified": true,
+   "base": "T_INT",
+   "count": 101,
+   "elemStride": 2,
+   "dims": [
+    {
+     "min": 0,
+     "max": 100
+    }
+   ]
+  },
+  "T_ARRAY__0__20__OF_INT": {
+   "kind": "TypeArray",
+   "iec": "ARRAY [0..20] OF INT",
+   "bytes": 42,
+   "align": 2,
+   "declaredBytes": 42,
+   "verified": true,
+   "base": "T_INT",
+   "count": 21,
+   "elemStride": 2,
+   "dims": [
+    {
+     "min": 0,
+     "max": 20
+    }
+   ]
+  },
+  "T_ARRAY__0__2__OF_BOOL": {
+   "kind": "TypeArray",
+   "iec": "ARRAY [0..2] OF BOOL",
+   "bytes": 3,
+   "align": 1,
+   "declaredBytes": 3,
+   "verified": true,
+   "base": "T_BOOL",
+   "count": 3,
+   "elemStride": 1,
+   "dims": [
+    {
+     "min": 0,
+     "max": 2
+    }
+   ]
+  },
+  "T_ARRAY__0__7__OF_T_ST_AXIS_CONTROL": {
+   "kind": "TypeArray",
+   "iec": "ARRAY [0..7] OF ST_AXIS_CONTROL",
+   "bytes": 352,
+   "align": 4,
+   "declaredBytes": 352,
+   "verified": true,
+   "base": "T_ST_AXIS_CONTROL",
+   "count": 8,
+   "elemStride": 44,
+   "dims": [
+    {
+     "min": 0,
+     "max": 7
+    }
+   ]
+  },
+  "T_ARRAY__0__7__OF_T_ST_AXIS_PARAM": {
+   "kind": "TypeArray",
+   "iec": "ARRAY [0..7] OF ST_AXIS_PARAM",
+   "bytes": 256,
+   "align": 4,
+   "declaredBytes": 256,
+   "verified": true,
+   "base": "T_ST_AXIS_PARAM",
+   "count": 8,
+   "elemStride": 32,
+   "dims": [
+    {
+     "min": 0,
+     "max": 7
+    }
+   ]
+  },
+  "T_ARRAY__0__9__OF_REAL": {
+   "kind": "TypeArray",
+   "iec": "ARRAY [0..9] OF REAL",
+   "bytes": 40,
+   "align": 4,
+   "declaredBytes": 40,
+   "verified": true,
+   "base": "T_REAL",
+   "count": 10,
+   "elemStride": 4,
+   "dims": [
+    {
+     "min": 0,
+     "max": 9
+    }
+   ]
+  },
+  "T_ARRAY__1__6__OF_DINT": {
+   "kind": "TypeArray",
+   "iec": "ARRAY [1..6] OF DINT",
+   "bytes": 24,
+   "align": 4,
+   "declaredBytes": 24,
+   "verified": true,
+   "base": "T_DINT",
+   "count": 6,
+   "elemStride": 4,
+   "dims": [
+    {
+     "min": 1,
+     "max": 6
+    }
+   ]
+  },
+  "T_ARRAY__1__6__OF_T_ST_CELL": {
+   "kind": "TypeArray",
+   "iec": "ARRAY [1..6] OF ST_CELL",
+   "bytes": 72,
+   "align": 4,
+   "declaredBytes": 6,
+   "verified": false,
+   "base": "T_ST_CELL",
+   "count": 6,
+   "elemStride": 12,
+   "dims": [
+    {
+     "min": 1,
+     "max": 6
+    }
+   ]
+  },
+  "T_BOOL": {
+   "kind": "TypeSimple",
+   "iec": "BOOL",
+   "bytes": 1,
+   "align": 1,
+   "declaredBytes": 1,
+   "verified": true
+  },
+  "T_DINT": {
+   "kind": "TypeSimple",
+   "iec": "DINT",
+   "bytes": 4,
+   "align": 4,
+   "declaredBytes": 4,
+   "verified": true
+  },
+  "T_E_MODE": {
+   "kind": "TypeUserDef",
+   "iec": "E_MODE",
+   "bytes": 2,
+   "align": 2,
+   "declaredBytes": 2,
+   "verified": true,
+   "enumValues": [
+    {
+     "name": "IDLE",
+     "value": 0,
+     "comment": ""
+    },
+    {
+     "name": "MANUAL",
+     "value": 1,
+     "comment": ""
+    },
+    {
+     "name": "AUTO",
+     "value": 2,
+     "comment": ""
+    },
+    {
+     "name": "FAULT",
+     "value": 3,
+     "comment": ""
+    },
+    {
+     "name": "MAINT",
+     "value": 4,
+     "comment": ""
+    }
+   ]
+  },
+  "T_E_PRODUCT_RESULT": {
+   "kind": "TypeUserDef",
+   "iec": "E_PRODUCT_RESULT",
+   "bytes": 2,
+   "align": 2,
+   "declaredBytes": 2,
+   "verified": true,
+   "enumValues": [
+    {
+     "name": "NONE",
+     "value": 0,
+     "comment": ""
+    },
+    {
+     "name": "OK",
+     "value": 1,
+     "comment": ""
+    },
+    {
+     "name": "NG",
+     "value": 2,
+     "comment": ""
+    }
+   ]
+  },
+  "T_INT": {
+   "kind": "TypeSimple",
+   "iec": "INT",
+   "bytes": 2,
+   "align": 2,
+   "declaredBytes": 2,
+   "verified": true
+  },
+  "T_LREAL": {
+   "kind": "TypeSimple",
+   "iec": "LREAL",
+   "bytes": 8,
+   "align": 8,
+   "declaredBytes": 8,
+   "verified": true
+  },
+  "T_REAL": {
+   "kind": "TypeSimple",
+   "iec": "REAL",
+   "bytes": 4,
+   "align": 4,
+   "declaredBytes": 4,
+   "verified": true
+  },
+  "T_ST_AXIS_CONTROL": {
+   "kind": "TypeUserDef",
+   "iec": "ST_AXIS_CONTROL",
+   "bytes": 44,
+   "align": 4,
+   "declaredBytes": 44,
+   "verified": true,
+   "members": [
+    {
+     "name": "fSetPosition",
+     "type": "T_REAL",
+     "iec": "REAL",
+     "offset": 0,
+     "bytes": 4,
+     "count": 1,
+     "stride": 4
+    },
+    {
+     "name": "fActPosition",
+     "type": "T_REAL",
+     "iec": "REAL",
+     "offset": 4,
+     "bytes": 4,
+     "count": 1,
+     "stride": 4
+    },
+    {
+     "name": "tState",
+     "type": "T_ST_AXIS_STATE",
+     "iec": "ST_AXIS_STATE",
+     "offset": 8,
+     "bytes": 16,
+     "count": 1,
+     "stride": 16
+    },
+    {
+     "name": "bEnable",
+     "type": "T_BOOL",
+     "iec": "BOOL",
+     "offset": 24,
+     "bytes": 1,
+     "count": 1,
+     "stride": 1
+    },
+    {
+     "name": "bEnabled",
+     "type": "T_BOOL",
+     "iec": "BOOL",
+     "offset": 25,
+     "bytes": 1,
+     "count": 1,
+     "stride": 1
+    },
+    {
+     "name": "bLimitPos",
+     "type": "T_BOOL",
+     "iec": "BOOL",
+     "offset": 26,
+     "bytes": 1,
+     "count": 1,
+     "stride": 1
+    },
+    {
+     "name": "bLimitNeg",
+     "type": "T_BOOL",
+     "iec": "BOOL",
+     "offset": 27,
+     "bytes": 1,
+     "count": 1,
+     "stride": 1
+    },
+    {
+     "name": "bJogFwd",
+     "type": "T_BOOL",
+     "iec": "BOOL",
+     "offset": 28,
+     "bytes": 1,
+     "count": 1,
+     "stride": 1
+    },
+    {
+     "name": "bJogBwd",
+     "type": "T_BOOL",
+     "iec": "BOOL",
+     "offset": 29,
+     "bytes": 1,
+     "count": 1,
+     "stride": 1
+    },
+    {
+     "name": "aAbsSel",
+     "type": "T_ARRAY__0__2__OF_BOOL",
+     "iec": "ARRAY [0..2] OF BOOL",
+     "offset": 30,
+     "bytes": 3,
+     "count": 3,
+     "stride": 1
+    },
+    {
+     "name": "fTargetVel",
+     "type": "T_REAL",
+     "iec": "REAL",
+     "offset": 36,
+     "bytes": 4,
+     "count": 1,
+     "stride": 4
+    },
+    {
+     "name": "diErrorCode",
+     "type": "T_DINT",
+     "iec": "DINT",
+     "offset": 40,
+     "bytes": 4,
+     "count": 1,
+     "stride": 4
+    }
+   ]
+  },
+  "T_ST_AXIS_PARAM": {
+   "kind": "TypeUserDef",
+   "iec": "ST_AXIS_PARAM",
+   "bytes": 32,
+   "align": 4,
+   "declaredBytes": 32,
+   "verified": true,
+   "members": [
+    {
+     "name": "fUpperLimit",
+     "type": "T_REAL",
+     "iec": "REAL",
+     "offset": 0,
+     "bytes": 4,
+     "count": 1,
+     "stride": 4
+    },
+    {
+     "name": "fLowerLimit",
+     "type": "T_REAL",
+     "iec": "REAL",
+     "offset": 4,
+     "bytes": 4,
+     "count": 1,
+     "stride": 4
+    },
+    {
+     "name": "fAcc",
+     "type": "T_REAL",
+     "iec": "REAL",
+     "offset": 8,
+     "bytes": 4,
+     "count": 1,
+     "stride": 4
+    },
+    {
+     "name": "fDec",
+     "type": "T_REAL",
+     "iec": "REAL",
+     "offset": 12,
+     "bytes": 4,
+     "count": 1,
+     "stride": 4
+    },
+    {
+     "name": "fJerk",
+     "type": "T_REAL",
+     "iec": "REAL",
+     "offset": 16,
+     "bytes": 4,
+     "count": 1,
+     "stride": 4
+    },
+    {
+     "name": "fJogVel",
+     "type": "T_REAL",
+     "iec": "REAL",
+     "offset": 20,
+     "bytes": 4,
+     "count": 1,
+     "stride": 4
+    },
+    {
+     "name": "diHomeOffset",
+     "type": "T_DINT",
+     "iec": "DINT",
+     "offset": 24,
+     "bytes": 4,
+     "count": 1,
+     "stride": 4
+    },
+    {
+     "name": "bInvertDir",
+     "type": "T_BOOL",
+     "iec": "BOOL",
+     "offset": 28,
+     "bytes": 1,
+     "count": 1,
+     "stride": 1
+    },
+    {
+     "name": "bSoftLimitEn",
+     "type": "T_BOOL",
+     "iec": "BOOL",
+     "offset": 29,
+     "bytes": 1,
+     "count": 1,
+     "stride": 1
+    },
+    {
+     "name": "iMode",
+     "type": "T_INT",
+     "iec": "INT",
+     "offset": 30,
+     "bytes": 2,
+     "count": 1,
+     "stride": 2
+    }
+   ]
+  },
+  "T_ST_AXIS_STATE": {
+   "kind": "TypeUserDef",
+   "iec": "ST_AXIS_STATE",
+   "bytes": 16,
+   "align": 4,
+   "declaredBytes": 16,
+   "verified": true,
+   "members": [
+    {
+     "name": "bValid",
+     "type": "T_BOOL",
+     "iec": "BOOL",
+     "offset": 0,
+     "bytes": 1,
+     "count": 1,
+     "stride": 1
+    },
+    {
+     "name": "bBusy",
+     "type": "T_BOOL",
+     "iec": "BOOL",
+     "offset": 1,
+     "bytes": 1,
+     "count": 1,
+     "stride": 1
+    },
+    {
+     "name": "bError",
+     "type": "T_BOOL",
+     "iec": "BOOL",
+     "offset": 2,
+     "bytes": 1,
+     "count": 1,
+     "stride": 1
+    },
+    {
+     "name": "diErrorID",
+     "type": "T_INT",
+     "iec": "INT",
+     "offset": 4,
+     "bytes": 2,
+     "count": 1,
+     "stride": 2
+    },
+    {
+     "name": "bDisabled",
+     "type": "T_BOOL",
+     "iec": "BOOL",
+     "offset": 6,
+     "bytes": 1,
+     "count": 1,
+     "stride": 1
+    },
+    {
+     "name": "bStopped",
+     "type": "T_BOOL",
+     "iec": "BOOL",
+     "offset": 7,
+     "bytes": 1,
+     "count": 1,
+     "stride": 1
+    },
+    {
+     "name": "bMoving",
+     "type": "T_BOOL",
+     "iec": "BOOL",
+     "offset": 8,
+     "bytes": 1,
+     "count": 1,
+     "stride": 1
+    },
+    {
+     "name": "bHomed",
+     "type": "T_BOOL",
+     "iec": "BOOL",
+     "offset": 9,
+     "bytes": 1,
+     "count": 1,
+     "stride": 1
+    },
+    {
+     "name": "tElapsed",
+     "type": "T_TIME",
+     "iec": "TIME",
+     "offset": 12,
+     "bytes": 4,
+     "count": 1,
+     "stride": 4
+    }
+   ]
+  },
+  "T_ST_CELL": {
+   "kind": "TypeUserDef",
+   "iec": "ST_CELL",
+   "bytes": 12,
+   "align": 4,
+   "declaredBytes": 1,
+   "verified": false,
+   "members": [
+    {
+     "name": "uResult",
+     "type": "T_U_CELL_RESULT",
+     "iec": "U_CELL_RESULT",
+     "offset": 0,
+     "bytes": 8,
+     "count": 1,
+     "stride": 8
+    },
+    {
+     "name": "bUsed",
+     "type": "T_BOOL",
+     "iec": "BOOL",
+     "offset": 8,
+     "bytes": 1,
+     "count": 1,
+     "stride": 1
+    }
+   ]
+  },
+  "T_ST_PANEL_IN": {
+   "kind": "TypeUserDef",
+   "iec": "ST_PANEL_IN",
+   "bytes": 12,
+   "align": 4,
+   "declaredBytes": 12,
+   "verified": true,
+   "members": [
+    {
+     "name": "bStart",
+     "type": "T_BOOL",
+     "iec": "BOOL",
+     "offset": 0,
+     "bytes": 1,
+     "count": 1,
+     "stride": 1
+    },
+    {
+     "name": "bStop",
+     "type": "T_BOOL",
+     "iec": "BOOL",
+     "offset": 1,
+     "bytes": 1,
+     "count": 1,
+     "stride": 1
+    },
+    {
+     "name": "bReset",
+     "type": "T_BOOL",
+     "iec": "BOOL",
+     "offset": 2,
+     "bytes": 1,
+     "count": 1,
+     "stride": 1
+    },
+    {
+     "name": "bEStop",
+     "type": "T_BOOL",
+     "iec": "BOOL",
+     "offset": 3,
+     "bytes": 1,
+     "count": 1,
+     "stride": 1
+    },
+    {
+     "name": "iModeSel",
+     "type": "T_INT",
+     "iec": "INT",
+     "offset": 4,
+     "bytes": 2,
+     "count": 1,
+     "stride": 2
+    },
+    {
+     "name": "diCoded",
+     "type": "T_DINT",
+     "iec": "DINT",
+     "offset": 8,
+     "bytes": 4,
+     "count": 1,
+     "stride": 4
+    }
+   ]
+  },
+  "T_ST_PANEL_OUT": {
+   "kind": "TypeUserDef",
+   "iec": "ST_PANEL_OUT",
+   "bytes": 8,
+   "align": 4,
+   "declaredBytes": 8,
+   "verified": true,
+   "members": [
+    {
+     "name": "bRunning",
+     "type": "T_BOOL",
+     "iec": "BOOL",
+     "offset": 0,
+     "bytes": 1,
+     "count": 1,
+     "stride": 1
+    },
+    {
+     "name": "bAlarm",
+     "type": "T_BOOL",
+     "iec": "BOOL",
+     "offset": 1,
+     "bytes": 1,
+     "count": 1,
+     "stride": 1
+    },
+    {
+     "name": "bReady",
+     "type": "T_BOOL",
+     "iec": "BOOL",
+     "offset": 2,
+     "bytes": 1,
+     "count": 1,
+     "stride": 1
+    },
+    {
+     "name": "bFault",
+     "type": "T_BOOL",
+     "iec": "BOOL",
+     "offset": 3,
+     "bytes": 1,
+     "count": 1,
+     "stride": 1
+    },
+    {
+     "name": "diCode",
+     "type": "T_DINT",
+     "iec": "DINT",
+     "offset": 4,
+     "bytes": 4,
+     "count": 1,
+     "stride": 4
+    }
+   ]
+  },
+  "T_TIME": {
+   "kind": "TypeSimple",
+   "iec": "TIME",
+   "bytes": 4,
+   "align": 4,
+   "declaredBytes": 4,
+   "verified": true
+  },
+  "T_U_CELL_RESULT": {
+   "kind": "TypeUserDef",
+   "iec": "U_CELL_RESULT",
+   "bytes": 8,
+   "align": 4,
+   "declaredBytes": 0,
+   "verified": false,
+   "members": [
+    {
+     "name": "eResult",
+     "type": "T_E_PRODUCT_RESULT",
+     "iec": "E_PRODUCT_RESULT",
+     "offset": 0,
+     "bytes": 2,
+     "count": 1,
+     "stride": 2
+    },
+    {
+     "name": "di",
+     "type": "T_DINT",
+     "iec": "DINT",
+     "offset": 4,
+     "bytes": 4,
+     "count": 1,
+     "stride": 4
+    }
+   ]
+  }
+ },
+ "symbols": [
+  {
+   "symbolPath": "Application.GVL_MAIN.diTotalCount",
+   "nodeId": "ns=4;s=Application.GVL_MAIN.diTotalCount",
+   "gvl": "Application.GVL_MAIN",
+   "name": "diTotalCount",
+   "type": "T_DINT",
+   "iecType": "DINT",
+   "bytes": 4,
+   "align": 4,
+   "count": 1,
+   "elemStride": 4,
+   "access": "rw",
+   "comment": "总计数",
+   "leafPoints": 1,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_MAIN.diPartCount",
+   "nodeId": "ns=4;s=Application.GVL_MAIN.diPartCount",
+   "gvl": "Application.GVL_MAIN",
+   "name": "diPartCount",
+   "type": "T_DINT",
+   "iecType": "DINT",
+   "bytes": 4,
+   "align": 4,
+   "count": 1,
+   "elemStride": 4,
+   "access": "rw",
+   "comment": "循环计数",
+   "leafPoints": 1,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_MAIN.bResetCount",
+   "nodeId": "ns=4;s=Application.GVL_MAIN.bResetCount",
+   "gvl": "Application.GVL_MAIN",
+   "name": "bResetCount",
+   "type": "T_BOOL",
+   "iecType": "BOOL",
+   "bytes": 1,
+   "align": 1,
+   "count": 1,
+   "elemStride": 1,
+   "access": "rw",
+   "comment": "计数清零",
+   "leafPoints": 1,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_MAIN.bAutoMode",
+   "nodeId": "ns=4;s=Application.GVL_MAIN.bAutoMode",
+   "gvl": "Application.GVL_MAIN",
+   "name": "bAutoMode",
+   "type": "T_BOOL",
+   "iecType": "BOOL",
+   "bytes": 1,
+   "align": 1,
+   "count": 1,
+   "elemStride": 1,
+   "access": "rw",
+   "comment": "自动模式",
+   "leafPoints": 1,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_MAIN.bRunning",
+   "nodeId": "ns=4;s=Application.GVL_MAIN.bRunning",
+   "gvl": "Application.GVL_MAIN",
+   "name": "bRunning",
+   "type": "T_BOOL",
+   "iecType": "BOOL",
+   "bytes": 1,
+   "align": 1,
+   "count": 1,
+   "elemStride": 1,
+   "access": "rw",
+   "comment": "运行中",
+   "leafPoints": 1,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_MAIN.lrSpeed",
+   "nodeId": "ns=4;s=Application.GVL_MAIN.lrSpeed",
+   "gvl": "Application.GVL_MAIN",
+   "name": "lrSpeed",
+   "type": "T_LREAL",
+   "iecType": "LREAL",
+   "bytes": 8,
+   "align": 8,
+   "count": 1,
+   "elemStride": 8,
+   "access": "rw",
+   "comment": "实际速度",
+   "leafPoints": 1,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_MAIN.bEStop",
+   "nodeId": "ns=4;s=Application.GVL_MAIN.bEStop",
+   "gvl": "Application.GVL_MAIN",
+   "name": "bEStop",
+   "type": "T_BOOL",
+   "iecType": "BOOL",
+   "bytes": 1,
+   "align": 1,
+   "count": 1,
+   "elemStride": 1,
+   "access": "rw",
+   "comment": "急停回路",
+   "leafPoints": 1,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_MAIN.bEtherCAT",
+   "nodeId": "ns=4;s=Application.GVL_MAIN.bEtherCAT",
+   "gvl": "Application.GVL_MAIN",
+   "name": "bEtherCAT",
+   "type": "T_BOOL",
+   "iecType": "BOOL",
+   "bytes": 1,
+   "align": 1,
+   "count": 1,
+   "elemStride": 1,
+   "access": "rw",
+   "comment": "总线就绪",
+   "leafPoints": 1,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_MAIN.bIoOk",
+   "nodeId": "ns=4;s=Application.GVL_MAIN.bIoOk",
+   "gvl": "Application.GVL_MAIN",
+   "name": "bIoOk",
+   "type": "T_BOOL",
+   "iecType": "BOOL",
+   "bytes": 1,
+   "align": 1,
+   "count": 1,
+   "elemStride": 1,
+   "access": "rw",
+   "comment": "IO 模块就绪",
+   "leafPoints": 1,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_MAIN.eMode",
+   "nodeId": "ns=4;s=Application.GVL_MAIN.eMode",
+   "gvl": "Application.GVL_MAIN",
+   "name": "eMode",
+   "type": "T_E_MODE",
+   "iecType": "E_MODE",
+   "bytes": 2,
+   "align": 2,
+   "count": 1,
+   "elemStride": 2,
+   "access": "rw",
+   "comment": "控制模式",
+   "leafPoints": 1,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_MAIN.aiStatus",
+   "nodeId": "ns=4;s=Application.GVL_MAIN.aiStatus",
+   "gvl": "Application.GVL_MAIN",
+   "name": "aiStatus",
+   "type": "T_ARRAY__0__20__OF_INT",
+   "iecType": "ARRAY [0..20] OF INT",
+   "bytes": 42,
+   "align": 2,
+   "count": 21,
+   "elemStride": 2,
+   "access": "rw",
+   "comment": "流程字",
+   "leafPoints": 21,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_MAIN.aAlarmFlag",
+   "nodeId": "ns=4;s=Application.GVL_MAIN.aAlarmFlag",
+   "gvl": "Application.GVL_MAIN",
+   "name": "aAlarmFlag",
+   "type": "T_ARRAY__0__100__OF_BOOL",
+   "iecType": "ARRAY [0..100] OF BOOL",
+   "bytes": 101,
+   "align": 1,
+   "count": 101,
+   "elemStride": 1,
+   "access": "rw",
+   "comment": "报警状态",
+   "leafPoints": 101,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_MAIN.aAlarmCode",
+   "nodeId": "ns=4;s=Application.GVL_MAIN.aAlarmCode",
+   "gvl": "Application.GVL_MAIN",
+   "name": "aAlarmCode",
+   "type": "T_ARRAY__0__100__OF_INT",
+   "iecType": "ARRAY [0..100] OF INT",
+   "bytes": 202,
+   "align": 2,
+   "count": 101,
+   "elemStride": 2,
+   "access": "rw",
+   "comment": "报警代码",
+   "leafPoints": 101,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_MAIN.aInfoFlag",
+   "nodeId": "ns=4;s=Application.GVL_MAIN.aInfoFlag",
+   "gvl": "Application.GVL_MAIN",
+   "name": "aInfoFlag",
+   "type": "T_ARRAY__0__100__OF_BOOL",
+   "iecType": "ARRAY [0..100] OF BOOL",
+   "bytes": 101,
+   "align": 1,
+   "count": 101,
+   "elemStride": 1,
+   "access": "rw",
+   "comment": "提示状态",
+   "leafPoints": 101,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_MAIN.aInfoCode",
+   "nodeId": "ns=4;s=Application.GVL_MAIN.aInfoCode",
+   "gvl": "Application.GVL_MAIN",
+   "name": "aInfoCode",
+   "type": "T_ARRAY__0__100__OF_INT",
+   "iecType": "ARRAY [0..100] OF INT",
+   "bytes": 202,
+   "align": 2,
+   "count": 101,
+   "elemStride": 2,
+   "access": "rw",
+   "comment": "提示代码",
+   "leafPoints": 101,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_MAIN.aErrFlag",
+   "nodeId": "ns=4;s=Application.GVL_MAIN.aErrFlag",
+   "gvl": "Application.GVL_MAIN",
+   "name": "aErrFlag",
+   "type": "T_ARRAY__0__100__OF_BOOL",
+   "iecType": "ARRAY [0..100] OF BOOL",
+   "bytes": 101,
+   "align": 1,
+   "count": 101,
+   "elemStride": 1,
+   "access": "rw",
+   "comment": "故障状态",
+   "leafPoints": 101,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_MAIN.aErrCode",
+   "nodeId": "ns=4;s=Application.GVL_MAIN.aErrCode",
+   "gvl": "Application.GVL_MAIN",
+   "name": "aErrCode",
+   "type": "T_ARRAY__0__100__OF_INT",
+   "iecType": "ARRAY [0..100] OF INT",
+   "bytes": 202,
+   "align": 2,
+   "count": 101,
+   "elemStride": 2,
+   "access": "rw",
+   "comment": "故障代码",
+   "leafPoints": 101,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_MAIN.aStationNo",
+   "nodeId": "ns=4;s=Application.GVL_MAIN.aStationNo",
+   "gvl": "Application.GVL_MAIN",
+   "name": "aStationNo",
+   "type": "T_ARRAY__1__6__OF_DINT",
+   "iecType": "ARRAY [1..6] OF DINT",
+   "bytes": 24,
+   "align": 4,
+   "count": 6,
+   "elemStride": 4,
+   "access": "rw",
+   "comment": "工位号表",
+   "leafPoints": 6,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_MAIN.aAngleMax",
+   "nodeId": "ns=4;s=Application.GVL_MAIN.aAngleMax",
+   "gvl": "Application.GVL_MAIN",
+   "name": "aAngleMax",
+   "type": "T_ARRAY__1__6__OF_DINT",
+   "iecType": "ARRAY [1..6] OF DINT",
+   "bytes": 24,
+   "align": 4,
+   "count": 6,
+   "elemStride": 4,
+   "access": "rw",
+   "comment": "角度上限表",
+   "leafPoints": 6,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_MAIN.aAngleMin",
+   "nodeId": "ns=4;s=Application.GVL_MAIN.aAngleMin",
+   "gvl": "Application.GVL_MAIN",
+   "name": "aAngleMin",
+   "type": "T_ARRAY__1__6__OF_DINT",
+   "iecType": "ARRAY [1..6] OF DINT",
+   "bytes": 24,
+   "align": 4,
+   "count": 6,
+   "elemStride": 4,
+   "access": "rw",
+   "comment": "角度下限表",
+   "leafPoints": 6,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_MAIN.aAxisVel",
+   "nodeId": "ns=4;s=Application.GVL_MAIN.aAxisVel",
+   "gvl": "Application.GVL_MAIN",
+   "name": "aAxisVel",
+   "type": "T_ARRAY__0__9__OF_REAL",
+   "iecType": "ARRAY [0..9] OF REAL",
+   "bytes": 40,
+   "align": 4,
+   "count": 10,
+   "elemStride": 4,
+   "access": "rw",
+   "comment": "轴速度表",
+   "leafPoints": 10,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_AXIS.aAxisCtl",
+   "nodeId": "ns=4;s=Application.GVL_AXIS.aAxisCtl",
+   "gvl": "Application.GVL_AXIS",
+   "name": "aAxisCtl",
+   "type": "T_ARRAY__0__7__OF_T_ST_AXIS_CONTROL",
+   "iecType": "ARRAY [0..7] OF ST_AXIS_CONTROL",
+   "bytes": 352,
+   "align": 4,
+   "count": 8,
+   "elemStride": 44,
+   "access": "rw",
+   "comment": "轴控制数据",
+   "leafPoints": 176,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_AXIS.aAxisParam",
+   "nodeId": "ns=4;s=Application.GVL_AXIS.aAxisParam",
+   "gvl": "Application.GVL_AXIS",
+   "name": "aAxisParam",
+   "type": "T_ARRAY__0__7__OF_T_ST_AXIS_PARAM",
+   "iecType": "ARRAY [0..7] OF ST_AXIS_PARAM",
+   "bytes": 256,
+   "align": 4,
+   "count": 8,
+   "elemStride": 32,
+   "access": "rw",
+   "comment": "轴参数",
+   "leafPoints": 80,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_STATION.rActual",
+   "nodeId": "ns=4;s=Application.GVL_STATION.rActual",
+   "gvl": "Application.GVL_STATION",
+   "name": "rActual",
+   "type": "T_REAL",
+   "iecType": "REAL",
+   "bytes": 4,
+   "align": 4,
+   "count": 1,
+   "elemStride": 4,
+   "access": "rw",
+   "comment": "当前实测值",
+   "leafPoints": 1,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_STATION.rTarget",
+   "nodeId": "ns=4;s=Application.GVL_STATION.rTarget",
+   "gvl": "Application.GVL_STATION",
+   "name": "rTarget",
+   "type": "T_REAL",
+   "iecType": "REAL",
+   "bytes": 4,
+   "align": 4,
+   "count": 1,
+   "elemStride": 4,
+   "access": "rw",
+   "comment": "目标值",
+   "leafPoints": 1,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_STATION.rUpperLimit",
+   "nodeId": "ns=4;s=Application.GVL_STATION.rUpperLimit",
+   "gvl": "Application.GVL_STATION",
+   "name": "rUpperLimit",
+   "type": "T_REAL",
+   "iecType": "REAL",
+   "bytes": 4,
+   "align": 4,
+   "count": 1,
+   "elemStride": 4,
+   "access": "rw",
+   "comment": "上限设定",
+   "leafPoints": 1,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_STATION.rLowerLimit",
+   "nodeId": "ns=4;s=Application.GVL_STATION.rLowerLimit",
+   "gvl": "Application.GVL_STATION",
+   "name": "rLowerLimit",
+   "type": "T_REAL",
+   "iecType": "REAL",
+   "bytes": 4,
+   "align": 4,
+   "count": 1,
+   "elemStride": 4,
+   "access": "rw",
+   "comment": "下限设定",
+   "leafPoints": 1,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_STATION.rReference",
+   "nodeId": "ns=4;s=Application.GVL_STATION.rReference",
+   "gvl": "Application.GVL_STATION",
+   "name": "rReference",
+   "type": "T_REAL",
+   "iecType": "REAL",
+   "bytes": 4,
+   "align": 4,
+   "count": 1,
+   "elemStride": 4,
+   "access": "rw",
+   "comment": "基准值",
+   "leafPoints": 1,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_STATION.bVisionEnable",
+   "nodeId": "ns=4;s=Application.GVL_STATION.bVisionEnable",
+   "gvl": "Application.GVL_STATION",
+   "name": "bVisionEnable",
+   "type": "T_BOOL",
+   "iecType": "BOOL",
+   "bytes": 1,
+   "align": 1,
+   "count": 1,
+   "elemStride": 1,
+   "access": "rw",
+   "comment": "视觉启用",
+   "leafPoints": 1,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_STATION.diOkCount",
+   "nodeId": "ns=4;s=Application.GVL_STATION.diOkCount",
+   "gvl": "Application.GVL_STATION",
+   "name": "diOkCount",
+   "type": "T_DINT",
+   "iecType": "DINT",
+   "bytes": 4,
+   "align": 4,
+   "count": 1,
+   "elemStride": 4,
+   "access": "rw",
+   "comment": "合格数",
+   "leafPoints": 1,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_STATION.diNgCount",
+   "nodeId": "ns=4;s=Application.GVL_STATION.diNgCount",
+   "gvl": "Application.GVL_STATION",
+   "name": "diNgCount",
+   "type": "T_DINT",
+   "iecType": "DINT",
+   "bytes": 4,
+   "align": 4,
+   "count": 1,
+   "elemStride": 4,
+   "access": "rw",
+   "comment": "不良数",
+   "leafPoints": 1,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_STATION.diTarget",
+   "nodeId": "ns=4;s=Application.GVL_STATION.diTarget",
+   "gvl": "Application.GVL_STATION",
+   "name": "diTarget",
+   "type": "T_DINT",
+   "iecType": "DINT",
+   "bytes": 4,
+   "align": 4,
+   "count": 1,
+   "elemStride": 4,
+   "access": "rw",
+   "comment": "设定产量",
+   "leafPoints": 1,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_STATION.diStationNo",
+   "nodeId": "ns=4;s=Application.GVL_STATION.diStationNo",
+   "gvl": "Application.GVL_STATION",
+   "name": "diStationNo",
+   "type": "T_DINT",
+   "iecType": "DINT",
+   "bytes": 4,
+   "align": 4,
+   "count": 1,
+   "elemStride": 4,
+   "access": "rw",
+   "comment": "当前工位号",
+   "leafPoints": 1,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_STATION.diCycleCount",
+   "nodeId": "ns=4;s=Application.GVL_STATION.diCycleCount",
+   "gvl": "Application.GVL_STATION",
+   "name": "diCycleCount",
+   "type": "T_DINT",
+   "iecType": "DINT",
+   "bytes": 4,
+   "align": 4,
+   "count": 1,
+   "elemStride": 4,
+   "access": "rw",
+   "comment": "循环计数",
+   "leafPoints": 1,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_STATION.aCell",
+   "nodeId": "ns=4;s=Application.GVL_STATION.aCell",
+   "gvl": "Application.GVL_STATION",
+   "name": "aCell",
+   "type": "T_ARRAY__1__6__OF_T_ST_CELL",
+   "iecType": "ARRAY [1..6] OF ST_CELL",
+   "bytes": 72,
+   "align": 4,
+   "count": 6,
+   "elemStride": 12,
+   "access": "rw",
+   "comment": "工位数据（联合体）",
+   "leafPoints": 18,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_IO.bSafetyDoor",
+   "nodeId": "ns=4;s=Application.GVL_IO.bSafetyDoor",
+   "gvl": "Application.GVL_IO",
+   "name": "bSafetyDoor",
+   "type": "T_BOOL",
+   "iecType": "BOOL",
+   "bytes": 1,
+   "align": 1,
+   "count": 1,
+   "elemStride": 1,
+   "access": "rw",
+   "comment": "安全门到位",
+   "leafPoints": 1,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_IO.bSafetyOk",
+   "nodeId": "ns=4;s=Application.GVL_IO.bSafetyOk",
+   "gvl": "Application.GVL_IO",
+   "name": "bSafetyOk",
+   "type": "T_BOOL",
+   "iecType": "BOOL",
+   "bytes": 1,
+   "align": 1,
+   "count": 1,
+   "elemStride": 1,
+   "access": "rw",
+   "comment": "安全允许",
+   "leafPoints": 1,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_IO.bAirPressure",
+   "nodeId": "ns=4;s=Application.GVL_IO.bAirPressure",
+   "gvl": "Application.GVL_IO",
+   "name": "bAirPressure",
+   "type": "T_BOOL",
+   "iecType": "BOOL",
+   "bytes": 1,
+   "align": 1,
+   "count": 1,
+   "elemStride": 1,
+   "access": "rw",
+   "comment": "气压正常",
+   "leafPoints": 1,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_IO.bFeedMaterial",
+   "nodeId": "ns=4;s=Application.GVL_IO.bFeedMaterial",
+   "gvl": "Application.GVL_IO",
+   "name": "bFeedMaterial",
+   "type": "T_BOOL",
+   "iecType": "BOOL",
+   "bytes": 1,
+   "align": 1,
+   "count": 1,
+   "elemStride": 1,
+   "access": "rw",
+   "comment": "上料检测",
+   "leafPoints": 1,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_IO.bPartDetect",
+   "nodeId": "ns=4;s=Application.GVL_IO.bPartDetect",
+   "gvl": "Application.GVL_IO",
+   "name": "bPartDetect",
+   "type": "T_BOOL",
+   "iecType": "BOOL",
+   "bytes": 1,
+   "align": 1,
+   "count": 1,
+   "elemStride": 1,
+   "access": "rw",
+   "comment": "物料检测",
+   "leafPoints": 1,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_IO.diPowerOnCount",
+   "nodeId": "ns=4;s=Application.GVL_IO.diPowerOnCount",
+   "gvl": "Application.GVL_IO",
+   "name": "diPowerOnCount",
+   "type": "T_DINT",
+   "iecType": "DINT",
+   "bytes": 4,
+   "align": 4,
+   "count": 1,
+   "elemStride": 4,
+   "access": "rw",
+   "comment": "开机次数",
+   "leafPoints": 1,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_IO.diStopReason",
+   "nodeId": "ns=4;s=Application.GVL_IO.diStopReason",
+   "gvl": "Application.GVL_IO",
+   "name": "diStopReason",
+   "type": "T_INT",
+   "iecType": "INT",
+   "bytes": 2,
+   "align": 2,
+   "count": 1,
+   "elemStride": 2,
+   "access": "rw",
+   "comment": "停机原因",
+   "leafPoints": 1,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_PANEL.stInput",
+   "nodeId": "ns=4;s=Application.GVL_PANEL.stInput",
+   "gvl": "Application.GVL_PANEL",
+   "name": "stInput",
+   "type": "T_ST_PANEL_IN",
+   "iecType": "ST_PANEL_IN",
+   "bytes": 12,
+   "align": 4,
+   "count": 1,
+   "elemStride": 12,
+   "access": "rw",
+   "comment": "面板输入",
+   "leafPoints": 6,
+   "layoutVerified": true,
+   "risk": []
+  },
+  {
+   "symbolPath": "Application.GVL_PANEL.stOutput",
+   "nodeId": "ns=4;s=Application.GVL_PANEL.stOutput",
+   "gvl": "Application.GVL_PANEL",
+   "name": "stOutput",
+   "type": "T_ST_PANEL_OUT",
+   "iecType": "ST_PANEL_OUT",
+   "bytes": 8,
+   "align": 4,
+   "count": 1,
+   "elemStride": 8,
+   "access": "rw",
+   "comment": "面板输出",
+   "leafPoints": 5,
+   "layoutVerified": true,
+   "risk": []
+  }
+ ]
+}

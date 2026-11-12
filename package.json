@@ -1,0 +1,22 @@
+{
+  "name": "codesys-v3-client",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CODESYS V3 标签通讯客户端 + 协议验证台（纯 Node 实现，免 DLL）",
+  "main": "server/codesys-v3-client.js",
+  "scripts": {
+    "start": "node server/verify-server.js",
+    "demo": "node server/codesys-v3-client.js",
+    "gen": "python tools/gen_tags.py --all",
+    "test": "node tests/run-all.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "optionalDependencies": {},
+  "keywords": ["codesys", "plc", "iec61131", "tcp", "protocol"],
+  "license": "UNLICENSED"
+}
