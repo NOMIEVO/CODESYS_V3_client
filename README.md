@@ -241,7 +241,8 @@ CODESYS_V3_client/
 │   ├── win-nic-check.ps1      ← 工控机网卡/系统参数体检（-Apply 可自动改）
 │   ├── win-rte-check.ps1      ← RTE 实时性体检（虚拟化/电源/时钟校准）
 │   ├── probe-blocksize.js      ← 分块上限实测：512B/帧是协议硬限，实测不可突破
-│   └── probe-udp.js            ← 探测 UDP 块驱动是否开放（唯一可能绕开逐块 ACK 的路）
+│   ├── probe-udp.js            ← 探测 UDP 块驱动是否开放（唯一可能绕开逐块 ACK 的路）
+│   └── probe-ackgate.js        ← 验证 ACK 是否必须逐块回执（不回会 2s 超时）
 │   └── points_template.csv    ← 点表模板（批量选点用）
 │
 ├── tests/                     ← 自检用例（见第 7 节）
