@@ -81,9 +81,9 @@ function Get-Prop([string[]]$kw) {
 
 # 关闭类：这些开着会让每个包/每次交互多等一段时间
 $offList = @(
-  @{ Key = @('*InterruptModeration');                       Name = '中断调整 Interrupt Moderation'; Why = '开着会把中断合并成批，每次往返多等 0.5~2ms' },
+  @{ Key = @('*InterruptModeration');                       Name = '中断调整 Interrupt Moderation'; Why = '合并中断成批上报。实测对「空闲后 0.93ms」无影响（关掉仍 0.93ms），但对持续高速小包有轻微帮助' },
   @{ Key = @('*EEE','AdvancedEEE','EnableGreenEthernet','GigabitLite','PowerSavingMode','AutoDisableGigabit');
-     Name = '节能以太网 / 绿色以太网 / 低功耗';                Why = '空闲时降速或休眠 PHY，突发时先唤醒，产生毫秒级抖动' },
+     Name = '节能以太网 / 绿色以太网 / 低功耗';                Why = '【实测最关键】空闲后进低功耗态，每包要先唤醒 PHY，RTT 0.93ms→关掉 0.13ms（7 倍）' },
   @{ Key = @('*FlowControl');                               Name = '流控制 Flow Control';            Why = 'pause 帧会让发送方整段停顿，突发读取时更明显' },
   @{ Key = @('*LsoV2IPv4','*LsoV2IPv6');                    Name = '大量传送减负 LSO v2';            Why = '大包分片交给网卡，小包协议无收益且增加不可预期延迟' },
   @{ Key = @('*JumboPacket');                               Name = '巨型帧 Jumbo Frame';            Why = '本协议帧 ≤516B，开巨型帧没有任何好处，还易与交换机不一致' },
@@ -322,5 +322,5 @@ Say '  改完怎么验证（在客户端电脑上，只读、不写 PLC）：'
 Say '    node tools/probe-roundtrip.js <PLC_IP> <APP>     # 看 TCP 握手 与 协议往返 的差'
 Say '    node tools/probe-blockgap.js  <PLC_IP> <APP> <符号>  # 看逐块间隔中位是否下降'
 Say '  期望：TCP 握手 ≤0.5ms，协议往返相对下降 10~20%。'
-Say '  若两项都没变，说明瓶颈不在网卡，请转查 Runtime 任务周期（见 docs/05-工控机参数体检.md）。'
+Say '  若两项都没变，说明瓶颈不在网卡，请转查 Runtime 任务周期（见 docs/现场诊断-工控机vsSA40.md）。'
 Say '════════════════════════════════════════════════════════════'
