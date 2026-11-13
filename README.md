@@ -239,7 +239,9 @@ CODESYS_V3_client/
 │   ├── probe-roundtrip.js     ← 拆开网络 / Runtime / 每块，定位瓶颈层
 │   ├── probe-blockgap.js      ← 逐块到达间隔直方图（看是否被量化到某个节拍）
 │   ├── win-nic-check.ps1      ← 工控机网卡/系统参数体检（-Apply 可自动改）
-│   └── win-rte-check.ps1      ← RTE 实时性体检（虚拟化/电源/时钟校准）
+│   ├── win-rte-check.ps1      ← RTE 实时性体检（虚拟化/电源/时钟校准）
+│   ├── probe-blocksize.js      ← 分块上限实测：512B/帧是协议硬限，实测不可突破
+│   └── probe-udp.js            ← 探测 UDP 块驱动是否开放（唯一可能绕开逐块 ACK 的路）
 │   └── points_template.csv    ← 点表模板（批量选点用）
 │
 ├── tests/                     ← 自检用例（见第 7 节）
@@ -648,6 +650,7 @@ A：`MYX_VERIFY_PORT` 换端口，或先关掉占 8095 的进程。
 | `docs/04-示例数据与脱敏说明.md` | 示例工程是合成的、哪些信息被替换、换成自己工程怎么改 |
 | `docs/05-工控机参数体检.md` | 接工控机变慢时该查哪些网卡/系统参数、改完怎么验证 |
 | `docs/06-RTE实时性排查.md` | 是 Control Win 还是 RTE、官方要求的 BIOS/Windows 项、虚拟化冲突与任务周期 |
+| `docs/07-协议传输上限.md` | 为什么必须分包（512B 硬限）、每块 8.7ms 的实测、IDE 为何显得快 |
 
 ---
 
